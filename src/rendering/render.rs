@@ -26,7 +26,7 @@ pub fn render(parameters: &AppParameters, _scene_data: SceneData) -> RenderResul
 
             // Clumsy code to track progress
             if absolute_progress % tenth_of_work == 0 {
-                log::info!("Rendering {}% complete", relative_progress);
+                log::info!("Render {}% complete", relative_progress);
                 relative_progress += 10;
             }
             absolute_progress += 1;

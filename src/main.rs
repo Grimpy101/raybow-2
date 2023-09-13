@@ -26,16 +26,16 @@ fn get_parameters() -> AppParameters {
 
     let parameters: Vec<String> = env::args().collect();
     for (i, parameter) in parameters.iter().enumerate() {
-        if parameter == "--output_path" && i + 1 < parameters.len() {
+        if parameter == "--output-path" && i + 1 < parameters.len() {
             output_path = parameters[i + 1].clone();
-        } else if parameter == "--output_width" && i + 1 < parameters.len() {
+        } else if parameter == "--output-width" && i + 1 < parameters.len() {
             output_width = parameters[i + 1]
                 .parse::<u32>()
-                .expect("Invalid parameter for --output_width");
-        } else if parameter == "--output_height" && i + 1 < parameters.len() {
+                .expect("Invalid parameter for --output-width");
+        } else if parameter == "--output-height" && i + 1 < parameters.len() {
             output_height = parameters[i + 1]
                 .parse::<u32>()
-                .expect("Invalid parameter for --output_heigth");
+                .expect("Invalid parameter for --output-heigth");
         }
     }
 
