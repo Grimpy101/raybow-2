@@ -1,33 +1,6 @@
-use std::{error::Error, fmt::Display};
-
 use crate::color::RGBColor;
 
-/// Errors in PPM image generation
-#[derive(Debug)]
-pub enum PPMError {
-    /// First two parameters are width and height,
-    /// then actual data size
-    SizeExceedsData(u32, u32, usize),
-}
-
-impl Display for PPMError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let message = match self {
-            PPMError::SizeExceedsData(width, height, size) => {
-                format!(
-                    "Promised size ({}x{}={}) exceeds the actual data ({})",
-                    width,
-                    height,
-                    width * height,
-                    size
-                )
-            }
-        };
-        write!(f, "PPMError: {}", message)
-    }
-}
-
-impl Error for PPMError {}
+use super::ExportError;
 
 /// Returns a vector of bytes representing ppm image with binary data
 ///
@@ -39,10 +12,10 @@ pub fn rgb_to_binary_ppm(
     rgb_data: &[RGBColor],
     width: u32,
     height: u32,
-) -> Result<Vec<u8>, PPMError> {
+) -> Result<Vec<u8>, ExportError> {
     // Check if we actually have enough data
     if width * height > rgb_data.len() as u32 {
-        return Err(PPMError::SizeExceedsData(width, height, rgb_data.len()));
+        return Err(ExportError::SizeExceedsData(width, height, rgb_data.len()));
     }
 
     let mut header: Vec<u8> = format!("P6\n{} {}\n{}\n", width, height, 255)
@@ -74,10 +47,10 @@ pub fn rgb_to_ascii_ppm(
     rgb_data: &[RGBColor],
     width: u32,
     height: u32,
-) -> Result<Vec<u8>, PPMError> {
+) -> Result<Vec<u8>, ExportError> {
     // Check if we actually have enough data
     if width * height > rgb_data.len() as u32 {
-        return Err(PPMError::SizeExceedsData(width, height, rgb_data.len()));
+        return Err(ExportError::SizeExceedsData(width, height, rgb_data.len()));
     }
 
     let header = format!("P3\n{} {}\n{}\n", width, height, 255);
