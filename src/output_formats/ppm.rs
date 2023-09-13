@@ -92,7 +92,7 @@ pub fn rgb_to_ascii_ppm(
         modified_color.clamp();
         let resized_color = modified_color * 255.0;
         let color_tuple = format!(
-            "{} {} {}\n",
+            "{} {} {}",
             resized_color.r(),
             resized_color.g(),
             resized_color.b()
