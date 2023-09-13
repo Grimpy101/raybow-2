@@ -12,6 +12,7 @@ pub struct AppParameters {
     output_height: u32,
 }
 
+/// Initialize logging (filtered by environmental variable `LOG_LEVEL`)
 fn init_logger() {
     let environment = env_logger::Env::default().filter("LOG_LEVEL");
     env_logger::Builder::from_env(environment).init();
@@ -46,24 +47,26 @@ fn get_parameters() -> AppParameters {
 }
 
 fn main() -> Result<(), String> {
-    // Start logger (need to set `LOG_LEVEL` environmental variable upon running)
+    // Initialize and configure all basic stuff
     init_logger();
-
-    log::info!("Starting...");
     let execution_time = Instant::now();
-
     let parameters = get_parameters();
 
-    // Prepare scene, objects, shaders...
+    log::info!("Starting...");
+
+    // ------ PREPARATION PASS ------
     log::info!("Preparing scene data...");
     let scene_data = preparation::prepare_render_data(&parameters);
 
-    // Actual rendering process
+    // -------- RENDER PASS --------
     log::info!("Rendering...");
     let render_result = rendering::render::render(&parameters, scene_data);
 
+    // -------- EXPORT PASS --------
+    log::info!("Writing to files...");
     export::export_to_file(&parameters, &render_result).map_err(|err| err.to_string())?;
 
+    // Finalize and close everything
     let execution_duration = execution_time.elapsed();
     log::debug!("Done in {:.2?}", execution_duration);
 
