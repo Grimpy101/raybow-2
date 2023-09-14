@@ -2,6 +2,7 @@ use std::{env, time::Instant};
 
 mod color;
 mod export;
+mod math;
 mod output_formats;
 mod preparation;
 mod rendering;

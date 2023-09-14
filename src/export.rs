@@ -12,9 +12,9 @@ pub fn export_to_file(
     render_result: &RenderResult,
 ) -> Result<(), Box<dyn Error>> {
     let ppm_data = rgb_to_binary_ppm(
-        render_result.image_data(),
-        render_result.width(),
-        render_result.heigth(),
+        &render_result.image_data,
+        render_result.width,
+        render_result.height,
     )?;
     fs::write(parameters.output_path.clone(), ppm_data)?;
 

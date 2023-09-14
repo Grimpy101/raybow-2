@@ -37,7 +37,7 @@ pub fn rgb_to_binary_ppm(
     Ok(output)
 }
 
-/// Returns a vector of bytes representing ppm image with ascii data
+/// Returns a vector of bytes representing ppm image with ascii data (useful for debugging)
 ///
 /// ## Arguments
 /// * `rgb_data` - a 1D vector or slice of RGB colored pixels in the image
