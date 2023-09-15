@@ -4,6 +4,7 @@ mod camera;
 mod color;
 mod export;
 mod math;
+mod objects;
 mod output_formats;
 mod preparation;
 mod progress;

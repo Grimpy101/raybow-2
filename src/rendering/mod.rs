@@ -1,6 +1,7 @@
 use crate::color::RGBColor;
 
 pub mod render;
+pub mod renderables;
 
 pub struct RenderResult {
     pub width: u32,

@@ -20,6 +20,11 @@ impl Ray {
         self.direction
     }
 
+    /// Retrieves origin of the ray
+    pub fn origin(&self) -> Vector3 {
+        self.origin
+    }
+
     /// Calculates 3D position based on how far along the ray we are
     ///
     /// ## Parameters

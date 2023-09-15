@@ -1,4 +1,11 @@
-use crate::{color::RGBColor, preparation::SceneData, progress::Progress, ray::Ray, AppParameters};
+use crate::{
+    color::RGBColor,
+    objects::{HitRecord, Hittable},
+    preparation::SceneData,
+    progress::Progress,
+    ray::Ray,
+    AppParameters,
+};
 
 use super::RenderResult;
 
@@ -6,7 +13,16 @@ use super::RenderResult;
 ///
 /// ## Parameters
 /// * `ray`
-fn ray_color(ray: &Ray) -> RGBColor {
+fn ray_color(ray: &Ray, scene_data: &SceneData) -> RGBColor {
+    let mut hit_record = HitRecord::default();
+    if scene_data
+        .renderables
+        .hit(ray, 0.0, f32::INFINITY, &mut hit_record)
+    {
+        let normal = hit_record.normal();
+        return 0.5 * RGBColor::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
+    }
+
     let unit_direction = ray.direction().normalize();
     let parameter = 0.5 * (unit_direction.y + 1.0);
     let start_color = RGBColor::new(1.0, 1.0, 1.0);
@@ -36,7 +52,7 @@ pub fn render(parameters: &AppParameters, scene_data: SceneData) -> RenderResult
 
             let ray = Ray::new(camera.origin(), ray_direction);
 
-            let color = ray_color(&ray);
+            let color = ray_color(&ray, &scene_data);
             color_data.push(color);
 
             if let Some(progress) = progress_tracker.increment() {
