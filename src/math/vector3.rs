@@ -1,6 +1,6 @@
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, Mul, Sub},
+    ops::{Add, Div, Mul, Sub},
 };
 
 /// A 3D vector implementation with components of type f32
@@ -31,13 +31,13 @@ impl Vector3 {
     }
 
     /// Normalizes the given vector
-    ///
-    /// IMPORTANT: The normalization is applied to the current vector!
-    pub fn normalize(&mut self) {
+    pub fn normalize(&self) -> Self {
         let len = self.length();
-        self.x /= len;
-        self.y /= len;
-        self.z /= len;
+        Self {
+            x: self.x / len,
+            y: self.y / len,
+            z: self.z / len,
+        }
     }
 }
 
@@ -85,6 +85,18 @@ impl Mul<Vector3> for f32 {
             x: self * rhs.x,
             y: self * rhs.y,
             z: self * rhs.z,
+        }
+    }
+}
+
+impl Div<f32> for Vector3 {
+    type Output = Vector3;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
         }
     }
 }

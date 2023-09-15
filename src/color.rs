@@ -55,6 +55,16 @@ impl RGBColor {
     pub fn b(&self) -> f32 {
         self.b
     }
+
+    /// Returns a linear interpolation between two colors
+    ///
+    /// ## Parameters
+    /// * `start_color` - the left end of interpolation range
+    /// * `end_color` - the right end of interpolation range
+    /// * `a` - the factor of interpolation
+    pub fn lerp(start_color: Self, end_color: Self, a: f32) -> Self {
+        (1.0 - a) * start_color + a * end_color
+    }
 }
 
 impl Debug for RGBColor {

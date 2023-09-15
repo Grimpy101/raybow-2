@@ -1,16 +1,20 @@
 use std::{env, time::Instant};
 
+mod camera;
 mod color;
 mod export;
 mod math;
 mod output_formats;
 mod preparation;
+mod progress;
+mod ray;
 mod rendering;
 
 pub struct AppParameters {
     output_path: String,
     output_width: u32,
     output_height: u32,
+    focal_length: f32,
 }
 
 /// Initialize logging (filtered by environmental variable `LOG_LEVEL`)
@@ -24,6 +28,7 @@ fn get_parameters() -> AppParameters {
     let mut output_path = "untitled.ppm".to_string();
     let mut output_width = 256;
     let mut output_height = 256;
+    let mut focal_length = 1.0;
 
     let parameters: Vec<String> = env::args().collect();
     for (i, parameter) in parameters.iter().enumerate() {
@@ -37,6 +42,10 @@ fn get_parameters() -> AppParameters {
             output_height = parameters[i + 1]
                 .parse::<u32>()
                 .expect("Invalid parameter for --output-heigth");
+        } else if parameter == "--focal-length" && i + 1 < parameters.len() {
+            focal_length = parameters[i + 1]
+                .parse::<f32>()
+                .expect("Invalid parameter for --focal-length");
         }
     }
 
@@ -44,6 +53,7 @@ fn get_parameters() -> AppParameters {
         output_path,
         output_width,
         output_height,
+        focal_length,
     }
 }
 
