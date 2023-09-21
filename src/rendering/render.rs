@@ -1,23 +1,26 @@
 use crate::{
     color::RGBColor,
+    interval::Interval,
     objects::{HitRecord, Hittable},
     preparation::SceneData,
-    progress::Progress,
+    progress::ProgressTracker,
     ray::Ray,
     AppParameters,
 };
 
 use super::RenderResult;
 
-/// Calculates the color of the pixel, from the ray
+/// Calculates the color of the pixel
+/// based on the ray hits
 ///
 /// ## Parameters
 /// * `ray`
 fn ray_color(ray: &Ray, scene_data: &SceneData) -> RGBColor {
     let mut hit_record = HitRecord::default();
+    let ray_interval = Interval::new(0.0, f32::INFINITY);
     if scene_data
         .renderables
-        .hit(ray, 0.0, f32::INFINITY, &mut hit_record)
+        .hit(ray, ray_interval, &mut hit_record)
     {
         let normal = hit_record.normal();
         return 0.5 * RGBColor::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
@@ -42,7 +45,7 @@ pub fn render(parameters: &AppParameters, scene_data: SceneData) -> RenderResult
     let camera = &scene_data.camera;
 
     // For progress tracking
-    let mut progress_tracker = Progress::new(0.0, (width * height) as f32, 1.0, 0.1);
+    let mut progress_tracker = ProgressTracker::new(0.0, (width * height) as f32, 1.0, 0.1);
 
     let mut color_data = Vec::with_capacity((width * height) as usize);
     for y in 0..height {

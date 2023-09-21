@@ -1,4 +1,4 @@
-pub struct Progress {
+pub struct ProgressTracker {
     min: f32,
     max: f32,
     current: f32,
@@ -7,7 +7,7 @@ pub struct Progress {
     milestone: f32, // Relative milestone between [0.0, 1.0]
 }
 
-impl Progress {
+impl ProgressTracker {
     /// Creates a new progress tracker
     ///
     /// ## Parameters

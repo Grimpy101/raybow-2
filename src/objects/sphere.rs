@@ -1,4 +1,4 @@
-use crate::{math::vector3::Vector3, ray::Ray};
+use crate::{interval::Interval, math::vector3::Vector3, ray::Ray};
 
 use super::Hittable;
 
@@ -17,17 +17,17 @@ impl Sphere {
         Self { center, radius }
     }
 
-    /// Calculates the normal based on provided point on the sphere
+    /// Calculates the outward normal based on provided point on the sphere
     ///
     /// ## Parameters
     /// * `point_on_sphere` - the point on the sphere to calculate normal of
-    pub fn get_normal(&self, point_on_sphere: Vector3) -> Vector3 {
-        (point_on_sphere - self.center).normalize()
+    pub fn get_outward_normal(&self, point_on_sphere: Vector3) -> Vector3 {
+        (point_on_sphere - self.center) / self.radius
     }
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32, hit_record: &mut super::HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_interval: Interval, hit_record: &mut super::HitRecord) -> bool {
         // To check if the ray hits,
         // we want to solve the quadratic equation
         //  -b +- sqrt(b^2 - 4ac)
@@ -53,16 +53,16 @@ impl Hittable for Sphere {
 
         // Find the nearest root that lies in the acceptable range
         let mut root = (-half_b - sqrt_discriminant) / a;
-        if root <= t_min || t_max <= root {
+        if !ray_interval.surrounds(root) {
             root = (-half_b + sqrt_discriminant) / a;
-            if root <= t_min || t_max <= root {
+            if !ray_interval.surrounds(root) {
                 return false;
             }
         }
 
         hit_record.t = root;
         hit_record.point = ray.at(hit_record.t);
-        let outward_normal = (hit_record.point - self.center) / self.radius;
+        let outward_normal = self.get_outward_normal(hit_record.point);
         hit_record.set_face_normal(ray, outward_normal);
 
         true

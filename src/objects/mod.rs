@@ -1,4 +1,4 @@
-use crate::{math::vector3::Vector3, ray::Ray};
+use crate::{interval::Interval, math::vector3::Vector3, ray::Ray};
 
 pub mod sphere;
 
@@ -72,5 +72,5 @@ pub trait Hittable {
     /// * `ray` - the ray to operate with
     /// * `t_min` - the lower boundary of the path along the ray (how close to the camera we still allow the result to be)
     /// * `t_min` - the upper boundary of the path along the ray (how far from the camera we still allow the result to be)
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_interval: Interval, hit_record: &mut HitRecord) -> bool;
 }

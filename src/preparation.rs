@@ -10,6 +10,9 @@ pub struct SceneData {
 
 /// Preparation stage before rendering
 ///
+/// Prepares all renderables, constructs the scene,
+/// and configures the camera
+///
 /// ## Parameters
 /// * `parameters` - application parameters
 pub fn prepare_render_data(parameters: &AppParameters) -> SceneData {

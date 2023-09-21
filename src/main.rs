@@ -3,6 +3,7 @@ use std::{env, time::Instant};
 mod camera;
 mod color;
 mod export;
+mod interval;
 mod math;
 mod objects;
 mod output_formats;
