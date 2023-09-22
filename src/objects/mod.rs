@@ -52,6 +52,11 @@ impl HitRecord {
         self.normal
     }
 
+    /// Get current hit point
+    pub fn point(&self) -> Vector3 {
+        self.point
+    }
+
     /// Copy data from one HitRecord to another
     pub fn copy_from(&mut self, source: &HitRecord) {
         self.point = source.point;

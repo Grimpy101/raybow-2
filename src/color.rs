@@ -3,6 +3,11 @@ use std::{
     ops::{Add, Div, Mul, Sub},
 };
 
+/// RGB color structure. Handles operations with colors.
+///
+/// Components should be on the interval `[0.0, 1.0]`,
+/// but this is not enforced and larger/smaller values can be expected.
+/// To handle these cases, use the `clamp` method.
 #[derive(Clone, Copy)]
 pub struct RGBColor {
     r: f32,
@@ -39,6 +44,13 @@ impl RGBColor {
         self.r = self.r.clamp(0.0, 1.0);
         self.g = self.g.clamp(0.0, 1.0);
         self.b = self.b.clamp(0.0, 1.0);
+    }
+
+    /// Does a simple gamma 2 transformation (square root) on itself
+    pub fn linear_to_gamma(&mut self) {
+        self.r = self.r.sqrt();
+        self.g = self.g.sqrt();
+        self.b = self.b.sqrt();
     }
 
     /// Returns the RED component
@@ -126,9 +138,9 @@ impl Div<f32> for RGBColor {
 
     fn div(self, rhs: f32) -> Self::Output {
         Self::Output {
-            r: self.r * rhs,
-            g: self.g * rhs,
-            b: self.b * rhs,
+            r: self.r / rhs,
+            g: self.g / rhs,
+            b: self.b / rhs,
         }
     }
 }
@@ -138,9 +150,9 @@ impl Div<RGBColor> for f32 {
 
     fn div(self, rhs: RGBColor) -> Self::Output {
         Self::Output {
-            r: self * rhs.r,
-            g: self * rhs.g,
-            b: self * rhs.b,
+            r: self / rhs.r,
+            g: self / rhs.g,
+            b: self / rhs.b,
         }
     }
 }

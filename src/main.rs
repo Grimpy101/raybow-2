@@ -1,5 +1,7 @@
 use std::{env, time::Instant};
 
+use crate::postprocessing::postprocess;
+
 mod camera;
 mod color;
 mod export;
@@ -7,6 +9,7 @@ mod interval;
 mod math;
 mod objects;
 mod output_formats;
+mod postprocessing;
 mod preparation;
 mod progress;
 mod ray;
@@ -17,6 +20,9 @@ pub struct AppParameters {
     output_width: u32,
     output_height: u32,
     focal_length: f32,
+    samples_per_pixel: u32,
+    steps: u32,
+    gamma_correction: bool,
 }
 
 /// Initialize logging (filtered by environmental variable `LOG_LEVEL`)
@@ -31,6 +37,9 @@ fn get_parameters() -> AppParameters {
     let mut output_width = 256;
     let mut output_height = 256;
     let mut focal_length = 1.0;
+    let mut samples_per_pixel = 1;
+    let mut steps = 10;
+    let mut gamma_correction = true;
 
     let parameters: Vec<String> = env::args().collect();
     for (i, parameter) in parameters.iter().enumerate() {
@@ -48,6 +57,16 @@ fn get_parameters() -> AppParameters {
             focal_length = parameters[i + 1]
                 .parse::<f32>()
                 .expect("Invalid parameter for --focal-length");
+        } else if parameter == "--samples" && i + 1 < parameters.len() {
+            samples_per_pixel = parameters[i + 1]
+                .parse::<u32>()
+                .expect("Invalid parameter for --samples");
+        } else if parameter == "--steps" && i + 1 < parameters.len() {
+            steps = parameters[i + 1]
+                .parse::<u32>()
+                .expect("Invalid parameter for --steps");
+        } else if parameter == "--gamma" && i + 1 < parameters.len() {
+            gamma_correction = parameters[i + 1] == "on";
         }
     }
 
@@ -56,6 +75,9 @@ fn get_parameters() -> AppParameters {
         output_width,
         output_height,
         focal_length,
+        samples_per_pixel,
+        steps,
+        gamma_correction,
     }
 }
 
@@ -75,9 +97,13 @@ fn main() -> Result<(), String> {
     log::info!("Rendering...");
     let render_result = rendering::render::render(&parameters, scene_data);
 
+    // ------ POSTPROCESSING -------
+    log::info!("Postprocessing...");
+    let postprocessing_result = postprocess(&parameters, &render_result);
+
     // -------- EXPORT PASS --------
     log::info!("Writing to files...");
-    export::export_to_file(&parameters, &render_result).map_err(|err| err.to_string())?;
+    export::export_to_file(&parameters, &postprocessing_result).map_err(|err| err.to_string())?;
 
     // Finalize and close everything
     let execution_duration = execution_time.elapsed();

@@ -33,6 +33,9 @@ impl Interval {
     }
 
     /// Returns true if `x` is on the interval, excluding both bounds
+    ///
+    /// ## Parameters
+    /// * `x` - value to check for
     pub fn surrounds(&self, x: f32) -> bool {
         self.min < x && x < self.max
     }

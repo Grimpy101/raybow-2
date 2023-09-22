@@ -1,6 +1,7 @@
 use crate::{
     color::RGBColor,
     interval::Interval,
+    math::vector3::Vector3,
     objects::{HitRecord, Hittable},
     preparation::SceneData,
     progress::ProgressTracker,
@@ -15,22 +16,30 @@ use super::RenderResult;
 ///
 /// ## Parameters
 /// * `ray`
-fn ray_color(ray: &Ray, scene_data: &SceneData) -> RGBColor {
+/// * `scene_data`
+fn ray_color(ray: &Ray, scene_data: &SceneData, depth: u32) -> RGBColor {
+    // After some steps we conclude that the recursion
+    // will not hit a light source, so we return black
+    if depth == 0 {
+        return RGBColor::new(0.0, 0.0, 0.0);
+    }
+
     let mut hit_record = HitRecord::default();
-    let ray_interval = Interval::new(0.0, f32::INFINITY);
+    // The interval starts at 0.001,
+    // so that we don't get shadow acne or z-fighting
+    let ray_interval = Interval::new(0.001, f32::INFINITY);
     if scene_data
         .renderables
         .hit(ray, ray_interval, &mut hit_record)
     {
-        let normal = hit_record.normal();
-        return 0.5 * RGBColor::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
+        // Direction is a Lambertarian reflection
+        let direction = hit_record.normal() + Vector3::random_on_unit_sphere();
+        let next_ray = Ray::new(hit_record.point(), direction);
+        return 0.5 * ray_color(&next_ray, scene_data, depth - 1);
     }
 
-    let unit_direction = ray.direction().normalize();
-    let parameter = 0.5 * (unit_direction.y + 1.0);
-    let start_color = RGBColor::new(1.0, 1.0, 1.0);
-    let end_color = RGBColor::new(0.5, 0.7, 1.0);
-    RGBColor::lerp(start_color, end_color, parameter)
+    // If there is no hit, we calculate background
+    scene_data.background.as_ref()(ray)
 }
 
 /// The main rendering process
@@ -50,13 +59,24 @@ pub fn render(parameters: &AppParameters, scene_data: SceneData) -> RenderResult
     let mut color_data = Vec::with_capacity((width * height) as usize);
     for y in 0..height {
         for x in 0..width {
-            let pixel_center = camera.get_pixel_center(x, y);
-            let ray_direction = pixel_center - camera.origin();
+            let mut pixel_color = RGBColor::new(0.0, 0.0, 0.0);
 
-            let ray = Ray::new(camera.origin(), ray_direction);
+            if parameters.samples_per_pixel == 1 {
+                // We only shoot one ray through the center
+                let ray = camera.get_ray_through_pixel_center(x, y);
+                pixel_color = ray_color(&ray, &scene_data, parameters.steps);
+            } else {
+                // For more rays, we do random sampling inside pixel
+                for _ in 0..parameters.samples_per_pixel {
+                    let ray = camera.get_random_ray_through_pixel(x, y);
+                    let new_pixel_color = ray_color(&ray, &scene_data, parameters.steps);
+                    pixel_color = pixel_color + new_pixel_color;
+                }
+            }
 
-            let color = ray_color(&ray, &scene_data);
-            color_data.push(color);
+            // We take average of all color samples
+            pixel_color = pixel_color / parameters.samples_per_pixel as f32;
+            color_data.push(pixel_color);
 
             if let Some(progress) = progress_tracker.increment() {
                 log::debug!(" Render on {:.0}%", progress * 100.0)

@@ -3,6 +3,8 @@ use std::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 
+use super::random_normal;
+
 /// A 3D vector implementation with components of type f32
 #[derive(Clone, Copy)]
 pub struct Vector3 {
@@ -15,6 +17,54 @@ impl Vector3 {
     /// Creates a new 3D vector from components x,y,z
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
+    }
+
+    /// Creates a random vector with components in range `[0.0, 1.0]`
+    pub fn random() -> Self {
+        Self {
+            x: rand::random::<f32>(),
+            y: rand::random::<f32>(),
+            z: rand::random::<f32>(),
+        }
+    }
+
+    /// Creates a random vector with components in provided range
+    ///
+    /// ## Parameters
+    /// `min` - lower bound of the range
+    /// `max` - upper bound of the range
+    pub fn random_in_range(min: f32, max: f32) -> Self {
+        let diff = max - min;
+        Self {
+            x: min + rand::random::<f32>() * diff,
+            y: min + rand::random::<f32>() * diff,
+            z: min + rand::random::<f32>() * diff,
+        }
+    }
+
+    /// Calculate a random vector on unit sphere
+    pub fn random_on_unit_sphere() -> Self {
+        // Uses dropped coordinates method for sampling on n-sphere
+        let x = random_normal();
+        let y = random_normal();
+        let z = random_normal();
+        let w = random_normal();
+
+        let norm = (x * x + y * y + z * z + w * w).sqrt();
+
+        Self {
+            x: x / norm,
+            y: y / norm,
+            z: z / norm,
+        }
+    }
+
+    pub fn random_on_hemisphere(normal: Self) -> Self {
+        let on_unit_sphere = Self::random_on_unit_sphere();
+        if on_unit_sphere.dot(&normal) > 0.0 {
+            return on_unit_sphere;
+        }
+        -on_unit_sphere
     }
 
     /// Calculates dot product of two vectors

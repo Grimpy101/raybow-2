@@ -1,4 +1,4 @@
-use crate::math::vector3::Vector3;
+use crate::{math::vector3::Vector3, ray::Ray};
 
 pub struct Camera {
     viewport_height: f32,
@@ -60,8 +60,44 @@ impl Camera {
             + (j as f32 * self.vertical_pixel_distance)
     }
 
-    /// Get position of the camera
-    pub fn origin(&self) -> Vector3 {
-        self.origin
+    /// Generates in-scene random location on the pixel based on image coordinates
+    ///
+    /// ## Parameters
+    /// * `i` - horizontal image location of the pixel
+    /// * `j` - vertical image location of the pixel
+    pub fn get_random_location_on_pixel(&self, i: u32, j: u32) -> Vector3 {
+        let pixel_center = self.get_pixel_center(i, j);
+        pixel_center + self.sample_pixel_square()
+    }
+
+    /// Returns a random point in the square surrounding a pixel at the origin
+    pub fn sample_pixel_square(&self) -> Vector3 {
+        let px = -0.5 + rand::random::<f32>();
+        let py = -0.5 + rand::random::<f32>();
+        px * self.horizontal_pixel_distance + py * self.vertical_pixel_distance
+    }
+
+    /// Generates a ray through the center of the pixel
+    ///
+    /// ## Parameters
+    /// * `i` - horizontal image location of the pixel
+    /// * `j` - vertical image location of the pixel
+    pub fn get_ray_through_pixel_center(&self, i: u32, j: u32) -> Ray {
+        let origin = self.origin;
+        let direction = self.get_pixel_center(i, j) - self.origin;
+        Ray::new(origin, direction)
+    }
+
+    /// Generates a ray throught a random point on the pixel
+    ///
+    /// This is useful for multisampling.
+    ///
+    /// ## Parameters
+    /// * `i` - horizontal image location of the pixel
+    /// * `j` - vertical image location of the pixel
+    pub fn get_random_ray_through_pixel(&self, i: u32, j: u32) -> Ray {
+        let origin = self.origin;
+        let direction = self.get_random_location_on_pixel(i, j) - self.origin;
+        Ray::new(origin, direction)
     }
 }

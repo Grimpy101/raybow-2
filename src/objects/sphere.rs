@@ -63,6 +63,8 @@ impl Hittable for Sphere {
         hit_record.t = root;
         hit_record.point = ray.at(hit_record.t);
         let outward_normal = self.get_outward_normal(hit_record.point);
+        // To prevent z-fighting due to precision error, we offset hit point just a little bit
+        //hit_record.point = hit_record.point + outward_normal * 0.00001;
         hit_record.set_face_normal(ray, outward_normal);
 
         true
