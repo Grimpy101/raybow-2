@@ -1,4 +1,6 @@
-use crate::{interval::Interval, math::vector3::Vector3, ray::Ray};
+use std::rc::Rc;
+
+use crate::{interval::Interval, materials::Material, math::vector3::Vector3, ray::Ray};
 
 pub mod sphere;
 
@@ -10,20 +12,26 @@ pub struct HitRecord {
     normal: Vector3,
     t: f32,
     front_face: bool,
-}
-
-impl Default for HitRecord {
-    fn default() -> Self {
-        Self {
-            point: Vector3::new(0.0, 0.0, 0.0),
-            normal: Vector3::new(0.0, 0.0, 0.0),
-            t: -1.0,
-            front_face: true,
-        }
-    }
+    material: Rc<Box<dyn Material>>,
 }
 
 impl HitRecord {
+    pub fn new(
+        point: Vector3,
+        normal: Vector3,
+        t: f32,
+        front_face: bool,
+        material: Rc<Box<dyn Material>>,
+    ) -> Self {
+        Self {
+            point,
+            normal,
+            t,
+            front_face,
+            material,
+        }
+    }
+
     /// Sets the hit record normal vector.
     /// This is done because the stored normal always
     /// points the opposite direction of the ray,
@@ -57,12 +65,17 @@ impl HitRecord {
         self.point
     }
 
+    pub fn material(&self) -> Rc<Box<dyn Material>> {
+        self.material.clone()
+    }
+
     /// Copy data from one HitRecord to another
     pub fn copy_from(&mut self, source: &HitRecord) {
         self.point = source.point;
         self.normal = source.normal;
         self.t = source.t;
         self.front_face = source.front_face;
+        self.material = source.material.clone();
     }
 }
 
@@ -77,5 +90,5 @@ pub trait Hittable {
     /// * `ray` - the ray to operate with
     /// * `t_min` - the lower boundary of the path along the ray (how close to the camera we still allow the result to be)
     /// * `t_min` - the upper boundary of the path along the ray (how far from the camera we still allow the result to be)
-    fn hit(&self, ray: &Ray, ray_interval: Interval, hit_record: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_interval: Interval) -> Option<HitRecord>;
 }

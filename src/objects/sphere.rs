@@ -1,10 +1,13 @@
-use crate::{interval::Interval, math::vector3::Vector3, ray::Ray};
+use std::rc::Rc;
 
-use super::Hittable;
+use crate::{interval::Interval, materials::Material, math::vector3::Vector3, ray::Ray};
+
+use super::{HitRecord, Hittable};
 
 pub struct Sphere {
     center: Vector3,
     radius: f32,
+    material: Rc<Box<dyn Material>>,
 }
 
 impl Sphere {
@@ -13,8 +16,12 @@ impl Sphere {
     /// ## Parameters
     /// * `center` - the center point of the sphere
     /// * `radius` - radius of the sphere
-    pub fn new(center: Vector3, radius: f32) -> Self {
-        Self { center, radius }
+    pub fn new(center: Vector3, radius: f32, material: Rc<Box<dyn Material>>) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
     }
 
     /// Calculates the outward normal based on provided point on the sphere
@@ -27,7 +34,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, ray_interval: Interval, hit_record: &mut super::HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_interval: Interval) -> Option<HitRecord> {
         // To check if the ray hits,
         // we want to solve the quadratic equation
         //  -b +- sqrt(b^2 - 4ac)
@@ -46,7 +53,7 @@ impl Hittable for Sphere {
         let discriminant = half_b * half_b - a * c;
 
         if discriminant < 0.0 {
-            return false; // There are no real solutions, so the ray misses the sphere
+            return None; // There are no real solutions, so the ray misses the sphere
         }
 
         let sqrt_discriminant = discriminant.sqrt();
@@ -56,17 +63,18 @@ impl Hittable for Sphere {
         if !ray_interval.surrounds(root) {
             root = (-half_b + sqrt_discriminant) / a;
             if !ray_interval.surrounds(root) {
-                return false;
+                return None;
             }
         }
 
-        hit_record.t = root;
-        hit_record.point = ray.at(hit_record.t);
-        let outward_normal = self.get_outward_normal(hit_record.point);
+        let point = ray.at(root);
+        let t = root;
+        let outward_normal = self.get_outward_normal(point);
+        let mut hit_record = HitRecord::new(point, outward_normal, t, false, self.material.clone());
         // To prevent z-fighting due to precision error, we offset hit point just a little bit
         //hit_record.point = hit_record.point + outward_normal * 0.00001;
         hit_record.set_face_normal(ray, outward_normal);
 
-        true
+        Some(hit_record)
     }
 }

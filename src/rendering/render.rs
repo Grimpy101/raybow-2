@@ -1,12 +1,6 @@
 use crate::{
-    color::RGBColor,
-    interval::Interval,
-    math::vector3::Vector3,
-    objects::{HitRecord, Hittable},
-    preparation::SceneData,
-    progress::ProgressTracker,
-    ray::Ray,
-    AppParameters,
+    color::RGBColor, interval::Interval, objects::Hittable, preparation::SceneData,
+    progress::ProgressTracker, ray::Ray, AppParameters,
 };
 
 use super::RenderResult;
@@ -24,18 +18,16 @@ fn ray_color(ray: &Ray, scene_data: &SceneData, depth: u32) -> RGBColor {
         return RGBColor::new(0.0, 0.0, 0.0);
     }
 
-    let mut hit_record = HitRecord::default();
     // The interval starts at 0.001,
     // so that we don't get shadow acne or z-fighting
     let ray_interval = Interval::new(0.001, f32::INFINITY);
-    if scene_data
-        .renderables
-        .hit(ray, ray_interval, &mut hit_record)
-    {
-        // Direction is a Lambertarian reflection
-        let direction = hit_record.normal() + Vector3::random_on_unit_sphere();
-        let next_ray = Ray::new(hit_record.point(), direction);
-        return 0.5 * ray_color(&next_ray, scene_data, depth - 1);
+    if let Some(hit_record) = scene_data.renderables.hit(ray, ray_interval) {
+        if let Some(material_result) = hit_record.material().scatter(ray, &hit_record) {
+            return material_result.attenuation
+                * ray_color(&material_result.scattered_ray, scene_data, depth - 1);
+        } else {
+            return RGBColor::new(0.0, 0.0, 0.0);
+        }
     }
 
     // If there is no hit, we calculate background

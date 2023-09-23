@@ -109,6 +109,18 @@ impl Sub for RGBColor {
     }
 }
 
+impl Mul<RGBColor> for RGBColor {
+    type Output = RGBColor;
+
+    fn mul(self, rhs: RGBColor) -> Self::Output {
+        Self::Output {
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+        }
+    }
+}
+
 impl Mul<f32> for RGBColor {
     type Output = RGBColor;
 

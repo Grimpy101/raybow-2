@@ -6,6 +6,7 @@ mod camera;
 mod color;
 mod export;
 mod interval;
+mod materials;
 mod math;
 mod objects;
 mod output_formats;

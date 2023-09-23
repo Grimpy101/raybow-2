@@ -28,6 +28,21 @@ impl Vector3 {
         }
     }
 
+    /// Checks if vector is near zero in all components
+    pub fn near_zero(&self) -> bool {
+        let threshold = 1e-8;
+        self.x < threshold && self.y < threshold && self.z < threshold
+    }
+
+    /// Returns a new vector that is a reflection of the `vector` over the `normal`
+    ///
+    /// ## Parameters
+    /// * `vector` - vector to reflect
+    /// * `normal` - vector to reflect over
+    pub fn reflect(vector: Vector3, normal: Vector3) -> Vector3 {
+        vector - 2.0 * vector.dot(&normal) * normal
+    }
+
     /// Creates a random vector with components in provided range
     ///
     /// ## Parameters
@@ -42,7 +57,7 @@ impl Vector3 {
         }
     }
 
-    /// Calculate a random vector on unit sphere
+    /// Calculates a random vector on unit sphere
     pub fn random_on_unit_sphere() -> Self {
         // Uses dropped coordinates method for sampling on n-sphere
         let x = random_normal();
@@ -57,14 +72,6 @@ impl Vector3 {
             y: y / norm,
             z: z / norm,
         }
-    }
-
-    pub fn random_on_hemisphere(normal: Self) -> Self {
-        let on_unit_sphere = Self::random_on_unit_sphere();
-        if on_unit_sphere.dot(&normal) > 0.0 {
-            return on_unit_sphere;
-        }
-        -on_unit_sphere
     }
 
     /// Calculates dot product of two vectors

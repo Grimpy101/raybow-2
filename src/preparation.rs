@@ -1,6 +1,12 @@
 use crate::{
-    camera::Camera, color::RGBColor, math::vector3::Vector3, objects::sphere::Sphere, ray::Ray,
-    rendering::renderables::Renderables, AppParameters,
+    camera::Camera,
+    color::RGBColor,
+    materials::{lambertarian::LambertarianDiffuse, metal::Metal},
+    math::vector3::Vector3,
+    objects::sphere::Sphere,
+    ray::Ray,
+    rendering::renderables::Renderables,
+    AppParameters,
 };
 
 pub struct SceneData {
@@ -32,11 +38,27 @@ pub fn prepare_render_data(parameters: &AppParameters) -> SceneData {
         parameters.focal_length,
         Vector3::new(0.0, 0.0, 0.0),
     );
+
+    let material_ground = LambertarianDiffuse::new_counter(RGBColor::new(0.8, 0.8, 0.0));
+    let material_center = LambertarianDiffuse::new_counter(RGBColor::new(0.7, 0.3, 0.3));
+    let material_left = Metal::new_counter(RGBColor::new(0.8, 0.8, 0.8), 0.3);
+    let material_right = Metal::new_counter(RGBColor::new(0.8, 0.6, 0.2), 1.0);
+
     let mut renderables = Renderables::new();
-    let small_sphere = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5);
-    let big_sphere = Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0);
-    renderables.add_hittable(small_sphere);
-    renderables.add_hittable(big_sphere);
+
+    let ground = Sphere::new(
+        Vector3::new(0.0, -100.5, -1.0),
+        100.0,
+        material_ground.clone(),
+    );
+    let center = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, material_center);
+    let left = Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, material_left);
+    let right = Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, material_right);
+
+    renderables.add_hittable(ground);
+    renderables.add_hittable(center);
+    renderables.add_hittable(left);
+    renderables.add_hittable(right);
 
     SceneData {
         camera,
