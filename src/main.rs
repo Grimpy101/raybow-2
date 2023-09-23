@@ -25,7 +25,7 @@ pub struct AppParameters {
     gamma_correction: bool,
 }
 
-/// Initialize logging (filtered by environmental variable `LOG_LEVEL`)
+/// Initializes logging (filtered by environmental variable `LOG_LEVEL`)
 fn init_logger() {
     let environment = env_logger::Env::default().filter("LOG_LEVEL");
     env_logger::Builder::from_env(environment).init();

@@ -8,6 +8,11 @@ pub struct PostProcessResult {
     pub image_data: Vec<RGBColor>,
 }
 
+/// Run postprocessing steps, such as gamma correction, etc.
+///
+/// ## Parameters
+/// * `parameters` - application configuration arguments
+/// * `render_result` - render result
 pub fn postprocess(parameters: &AppParameters, render_result: &RenderResult) -> PostProcessResult {
     let mut postprocessing_image_data = render_result.image_data.clone();
     if parameters.gamma_correction {
