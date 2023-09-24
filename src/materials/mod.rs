@@ -1,5 +1,6 @@
 use crate::{color::RGBColor, objects::HitRecord, ray::Ray};
 
+pub mod dielectric;
 pub mod lambertarian;
 pub mod metal;
 

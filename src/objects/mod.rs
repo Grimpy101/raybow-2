@@ -65,6 +65,12 @@ impl HitRecord {
         self.point
     }
 
+    /// Get information if front face was hit
+    pub fn front_face(&self) -> bool {
+        self.front_face
+    }
+
+    /// Get current surface material
     pub fn material(&self) -> Rc<Box<dyn Material>> {
         self.material.clone()
     }

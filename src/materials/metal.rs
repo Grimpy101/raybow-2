@@ -4,6 +4,11 @@ use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
 
 use super::Material;
 
+/// Metallic material
+///
+/// Works by reflecting incoming rays over the normal in the contact point of the surface.
+/// To control roughness (clearness) of the material, a roughness parameter displaces
+/// reflected rays to create a hazy reflections.
 pub struct Metal {
     albedo: RGBColor, // Color of the surface
     roughness: f32,   // How rough (unclear) is the surface

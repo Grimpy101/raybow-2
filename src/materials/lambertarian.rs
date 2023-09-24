@@ -4,6 +4,9 @@ use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
 
 use super::Material;
 
+/// Lambertarian diffuse material
+///
+/// Works by sending rays in random directions from point of contact.
 pub struct LambertarianDiffuse {
     albedo: RGBColor,
 }

@@ -43,6 +43,34 @@ impl Vector3 {
         vector - 2.0 * vector.dot(&normal) * normal
     }
 
+    /// Calculates the vector representing new direction of light in the material
+    /// from incoming direction of light outside the material (see Snell's law)
+    ///
+    /// Parameter `k` represents the ratio: `eta / eta'`, where `eta` is the
+    /// refractive index of the material the light is coming from, and `eta'`
+    /// is the refractive index of the material the light is entering.
+    ///
+    /// ### Some refractive indices (at room temperature):
+    /// * vacuum = 1.0
+    /// * standard air = 1.000273
+    /// * water = 1.333
+    /// * window glass = 1.52
+    /// * diamond = 2.417
+    /// * amber = 1.55
+    /// * human lens = 1.386 - 1.406
+    ///
+    /// ## Parameters
+    /// * `vector` - direction of incoming light
+    /// * `normal` - normal at the contact point of the surface of the material
+    /// * `k` - a ratio of refractive indices of the materials the light is going through
+    pub fn refract(vector: Vector3, normal: Vector3, k: f32) -> Vector3 {
+        let cos_theta = (-vector).dot(&normal).min(1.0);
+        let refracted_perpendicular = k * (vector + cos_theta * normal);
+        let refracted_parallel =
+            -((1.0 - refracted_perpendicular.dot(&refracted_perpendicular)).abs()).sqrt() * normal;
+        refracted_perpendicular + refracted_parallel
+    }
+
     /// Creates a random vector with components in provided range
     ///
     /// ## Parameters
