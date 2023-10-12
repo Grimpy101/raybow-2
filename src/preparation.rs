@@ -1,11 +1,8 @@
+use std::f32::consts::PI;
+
 use crate::{
-    camera::Camera,
-    color::RGBColor,
-    materials::{dielectric::Dielectric, lambertarian::LambertarianDiffuse, metal::Metal},
-    math::vector3::Vector3,
-    objects::sphere::Sphere,
-    ray::Ray,
-    rendering::renderables::Renderables,
+    camera::Camera, color::RGBColor, materials::lambertarian::LambertarianDiffuse,
+    math::vector3::Vector3, objects::sphere::Sphere, ray::Ray, rendering::renderables::Renderables,
     AppParameters,
 };
 
@@ -37,30 +34,21 @@ pub fn prepare_render_data(parameters: &AppParameters) -> SceneData {
         parameters.output_height,
         parameters.focal_length,
         Vector3::new(0.0, 0.0, 0.0),
+        90.0,
     );
-
-    let material_ground = LambertarianDiffuse::new_counter(RGBColor::new(0.8, 0.8, 0.0));
-    let material_center = LambertarianDiffuse::new_counter(RGBColor::new(0.1, 0.2, 0.5));
-    let material_left = Dielectric::new_counter(1.5);
-    let material_right = Metal::new_counter(RGBColor::new(0.8, 0.6, 0.2), 0.0);
 
     let mut renderables = Renderables::new();
 
-    let ground = Sphere::new(
-        Vector3::new(0.0, -100.5, -1.0),
-        100.0,
-        material_ground.clone(),
-    );
-    let center = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, material_center);
-    let left_outer = Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, material_left.clone());
-    let left_inner = Sphere::new(Vector3::new(-1.0, 0.0, -1.0), -0.4, material_left);
-    let right = Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, material_right);
+    let r = (PI / 4.0).cos();
 
-    renderables.add_hittable(ground);
-    renderables.add_hittable(center);
-    renderables.add_hittable(left_outer);
-    renderables.add_hittable(left_inner);
-    renderables.add_hittable(right);
+    let material_left = LambertarianDiffuse::new(RGBColor::new(0.0, 0.0, 1.0));
+    let material_right = LambertarianDiffuse::new(RGBColor::new(1.0, 0.0, 0.0));
+
+    let sphere_left = Sphere::new(Vector3::new(-r, 0.0, -1.0), r, material_left);
+    let sphere_right = Sphere::new(Vector3::new(r, 0.0, -1.0), r, material_right);
+
+    renderables.add_hittable(sphere_left);
+    renderables.add_hittable(sphere_right);
 
     SceneData {
         camera,

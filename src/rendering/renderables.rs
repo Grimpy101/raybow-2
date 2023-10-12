@@ -1,10 +1,12 @@
+use std::sync::Arc;
+
 use crate::{
     interval::Interval,
-    objects::{HitRecord, Hittable},
+    objects::{AnyHittable, HitRecord, Hittable},
 };
 
 pub struct Renderables {
-    hittable_renderables: Vec<Box<dyn Hittable>>,
+    hittable_renderables: Vec<Arc<AnyHittable>>,
 }
 
 impl Renderables {
@@ -14,8 +16,11 @@ impl Renderables {
         }
     }
 
-    pub fn add_hittable(&mut self, hittable: impl Hittable + 'static) {
-        self.hittable_renderables.push(Box::new(hittable));
+    pub fn add_hittable<H>(&mut self, hittable: H)
+    where
+        H: Into<Arc<AnyHittable>>,
+    {
+        self.hittable_renderables.push(hittable.into());
     }
 }
 

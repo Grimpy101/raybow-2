@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
 
@@ -28,10 +28,8 @@ impl LambertarianDiffuse {
     ///
     /// ## Parameters
     /// * `albedo` - albedo color of the material
-    pub fn new_counter(albedo: RGBColor) -> Rc<Box<dyn Material>> {
-        let lambert = Self::new(albedo);
-        let lambert_box: Box<dyn Material> = Box::new(lambert);
-        Rc::new(lambert_box)
+    pub fn new_counter(albedo: RGBColor) -> Arc<Self> {
+        Arc::new(Self::new(albedo))
     }
 }
 
@@ -41,12 +39,17 @@ impl Material for LambertarianDiffuse {
         _incoming_ray: &crate::ray::Ray,
         hit_record: &crate::objects::HitRecord,
     ) -> Option<super::MaterialScatterOutput> {
-        let mut scatter_direction = hit_record.normal() + Vector3::random_on_unit_sphere();
+        let random_unit_vector = Vector3::random_on_unit_sphere();
+        let mut scatter_direction = hit_record.normal() + random_unit_vector;
         // Handles the nasty instance where direction of the new vector
         // is (almost) the same as the normal on the surface,
         // because in that case scatter_direction would be [0.0, 0.0, 0.0]!!
         if scatter_direction.near_zero() {
             scatter_direction = hit_record.normal();
+        }
+
+        if scatter_direction.is_invalid() {
+            log::debug!("{}, {}", hit_record.normal(), random_unit_vector);
         }
 
         let scattered_ray = Ray::new(hit_record.point(), scatter_direction);

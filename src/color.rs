@@ -8,7 +8,7 @@ use std::{
 /// Components should be on the interval `[0.0, 1.0]`,
 /// but this is not enforced and larger/smaller values can be expected.
 /// To handle these cases, use the `clamp` method.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct RGBColor {
     r: f32,
     g: f32,

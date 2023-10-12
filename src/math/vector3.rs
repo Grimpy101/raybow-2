@@ -34,6 +34,10 @@ impl Vector3 {
         self.x < threshold && self.y < threshold && self.z < threshold
     }
 
+    pub fn is_invalid(&self) -> bool {
+        self.x.is_nan() || self.y.is_nan() || self.z.is_nan()
+    }
+
     /// Returns a new vector that is a reflection of the `vector` over the `normal`
     ///
     /// ## Parameters
@@ -88,6 +92,7 @@ impl Vector3 {
     /// Calculates a random vector on unit sphere
     pub fn random_on_unit_sphere() -> Self {
         // Uses dropped coordinates method for sampling on n-sphere
+        // We need to protect agains infinite result!!!
         let x = random_normal();
         let y = random_normal();
         let z = random_normal();
@@ -95,10 +100,21 @@ impl Vector3 {
 
         let norm = (x * x + y * y + z * z + w * w).sqrt();
 
+        let mut norm_x = x / norm;
+        let mut norm_y = y / norm;
+        let mut norm_z = z / norm;
+
+        // This is needed because division with infinity returns NaN
+        if norm.is_infinite() {
+            norm_x = 0.0;
+            norm_y = 0.0;
+            norm_z = 0.0;
+        }
+
         Self {
-            x: x / norm,
-            y: y / norm,
-            z: z / norm,
+            x: norm_x,
+            y: norm_y,
+            z: norm_z,
         }
     }
 

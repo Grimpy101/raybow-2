@@ -1,6 +1,8 @@
-use std::rc::Rc;
+use std::{fmt::Debug, sync::Arc};
 
-use crate::{interval::Interval, materials::Material, math::vector3::Vector3, ray::Ray};
+use crate::{interval::Interval, materials::AnyMaterial, math::vector3::Vector3, ray::Ray};
+
+use self::sphere::Sphere;
 
 pub mod sphere;
 
@@ -12,7 +14,7 @@ pub struct HitRecord {
     normal: Vector3,
     t: f32,
     front_face: bool,
-    material: Rc<Box<dyn Material>>,
+    material: Arc<AnyMaterial>,
 }
 
 impl HitRecord {
@@ -21,7 +23,7 @@ impl HitRecord {
         normal: Vector3,
         t: f32,
         front_face: bool,
-        material: Rc<Box<dyn Material>>,
+        material: Arc<AnyMaterial>,
     ) -> Self {
         Self {
             point,
@@ -71,7 +73,7 @@ impl HitRecord {
     }
 
     /// Get current surface material
-    pub fn material(&self) -> Rc<Box<dyn Material>> {
+    pub fn material(&self) -> Arc<AnyMaterial> {
         self.material.clone()
     }
 
@@ -82,6 +84,40 @@ impl HitRecord {
         self.t = source.t;
         self.front_face = source.front_face;
         self.material = source.material.clone();
+    }
+}
+
+impl Debug for HitRecord {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "[ {}, {}, {} ]",
+            self.point, self.normal, self.front_face
+        )
+    }
+}
+
+pub enum AnyHittable {
+    Sphere(Sphere),
+}
+
+impl From<Sphere> for AnyHittable {
+    fn from(value: Sphere) -> Self {
+        Self::Sphere(value)
+    }
+}
+
+impl From<Sphere> for Arc<AnyHittable> {
+    fn from(value: Sphere) -> Self {
+        Self::new(AnyHittable::Sphere(value))
+    }
+}
+
+impl Hittable for AnyHittable {
+    fn hit(&self, ray: &Ray, ray_interval: Interval) -> Option<HitRecord> {
+        match self {
+            AnyHittable::Sphere(inner) => inner.hit(ray, ray_interval),
+        }
     }
 }
 

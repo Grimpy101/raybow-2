@@ -1,13 +1,13 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
-use crate::{interval::Interval, materials::Material, math::vector3::Vector3, ray::Ray};
+use crate::{interval::Interval, materials::AnyMaterial, math::vector3::Vector3, ray::Ray};
 
 use super::{HitRecord, Hittable};
 
 pub struct Sphere {
     center: Vector3,
     radius: f32,
-    material: Rc<Box<dyn Material>>,
+    material: Arc<AnyMaterial>,
 }
 
 impl Sphere {
@@ -16,11 +16,14 @@ impl Sphere {
     /// ## Parameters
     /// * `center` - the center point of the sphere
     /// * `radius` - radius of the sphere
-    pub fn new(center: Vector3, radius: f32, material: Rc<Box<dyn Material>>) -> Self {
+    pub fn new<M>(center: Vector3, radius: f32, material: M) -> Self
+    where
+        M: Into<Arc<AnyMaterial>>,
+    {
         Self {
             center,
             radius,
-            material,
+            material: material.into(),
         }
     }
 

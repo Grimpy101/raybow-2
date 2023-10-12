@@ -1,6 +1,6 @@
 use crate::{
-    color::RGBColor, interval::Interval, objects::Hittable, preparation::SceneData,
-    progress::ProgressTracker, ray::Ray, AppParameters,
+    color::RGBColor, interval::Interval, materials::Material, objects::Hittable,
+    preparation::SceneData, progress::ProgressTracker, ray::Ray, AppParameters,
 };
 
 use super::RenderResult;
@@ -23,8 +23,9 @@ fn ray_color(ray: &Ray, scene_data: &SceneData, depth: u32) -> RGBColor {
     let ray_interval = Interval::new(0.001, f32::INFINITY);
     if let Some(hit_record) = scene_data.renderables.hit(ray, ray_interval) {
         if let Some(material_result) = hit_record.material().scatter(ray, &hit_record) {
-            return material_result.attenuation
-                * ray_color(&material_result.scattered_ray, scene_data, depth - 1);
+            let deeper_result = ray_color(&material_result.scattered_ray, scene_data, depth - 1);
+            let result = material_result.attenuation * deeper_result;
+            return result;
         } else {
             return RGBColor::new(0.0, 0.0, 0.0);
         }
@@ -56,13 +57,14 @@ pub fn render(parameters: &AppParameters, scene_data: SceneData) -> RenderResult
             if parameters.samples_per_pixel == 1 {
                 // We only shoot one ray through the center
                 let ray = camera.get_ray_through_pixel_center(x, y);
-                pixel_color = ray_color(&ray, &scene_data, parameters.steps);
+                let result = ray_color(&ray, &scene_data, parameters.steps);
+                pixel_color = result;
             } else {
                 // For more rays, we do random sampling inside pixel
                 for _ in 0..parameters.samples_per_pixel {
                     let ray = camera.get_random_ray_through_pixel(x, y);
-                    let new_pixel_color = ray_color(&ray, &scene_data, parameters.steps);
-                    pixel_color = pixel_color + new_pixel_color;
+                    let new_result = ray_color(&ray, &scene_data, parameters.steps);
+                    pixel_color = pixel_color + new_result;
                 }
             }
 
