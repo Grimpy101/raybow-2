@@ -1,15 +1,22 @@
 use std::f32::consts::PI;
 
-pub mod bivector3;
-pub mod rotor3;
+use rand::Rng;
+use rand_xoshiro::Xoshiro256Plus;
+
 pub mod vector3;
 
 /// Generate random normal variable with Box-Muller Transform
 ///
 /// Warning: This can return INF!!!
-pub fn random_normal() -> f32 {
-    let u1 = rand::random::<f32>();
-    let u2 = rand::random::<f32>();
+pub fn random_normal(rng: &mut Xoshiro256Plus) -> f32 {
+    // This is a fast (but not precise) RNG implementation
+    //let mut rng = Xoshiro256Plus::from_rng(thread_rng()).expect("Could not retrieve RNG");
 
-    (-2.0 * u1.ln()).powf(0.5) * (2.0 * PI * u2).cos()
+    let u1 = rng.gen::<f32>();
+    let u2 = rng.gen::<f32>();
+
+    let sqrt_part = (-2.0 * u1.ln()).sqrt();
+    let cos_part = (2.0 * PI * u2).sin();
+
+    sqrt_part * cos_part
 }

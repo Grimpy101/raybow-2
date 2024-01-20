@@ -3,6 +3,9 @@ use std::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 
+use rand::{rngs::ThreadRng, Rng};
+use rand_xoshiro::Xoshiro256Plus;
+
 use super::random_normal;
 
 /// A 3D vector implementation with components of type f32
@@ -80,23 +83,27 @@ impl Vector3 {
     /// ## Parameters
     /// `min` - lower bound of the range
     /// `max` - upper bound of the range
-    pub fn random_in_range(min: f32, max: f32) -> Self {
+    pub fn random_in_range(min: f32, max: f32, rng: &mut ThreadRng) -> Self {
+        // This is a fast (but not precise) RNG implementation
+        //let mut rng = Xoshiro256Plus::from_rng(thread_rng()).expect("Could not retrieve RNG");
+        //let mut rng = thread_rng();
+
         let diff = max - min;
         Self {
-            x: min + rand::random::<f32>() * diff,
-            y: min + rand::random::<f32>() * diff,
-            z: min + rand::random::<f32>() * diff,
+            x: min + rng.gen::<f32>() * diff,
+            y: min + rng.gen::<f32>() * diff,
+            z: min + rng.gen::<f32>() * diff,
         }
     }
 
     /// Calculates a random vector on unit sphere
-    pub fn random_on_unit_sphere() -> Self {
+    pub fn random_on_unit_sphere(rng: &mut Xoshiro256Plus) -> Self {
         // Uses dropped coordinates method for sampling on n-sphere
         // We need to protect agains infinite result!!!
-        let x = random_normal();
-        let y = random_normal();
-        let z = random_normal();
-        let w = random_normal();
+        let x = random_normal(rng);
+        let y = random_normal(rng);
+        let z = random_normal(rng);
+        let w = random_normal(rng);
 
         let norm = (x * x + y * y + z * z + w * w).sqrt();
 

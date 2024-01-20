@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use rand_xoshiro::Xoshiro256Plus;
+
 use crate::{color::RGBColor, objects::HitRecord, ray::Ray};
 
 use self::{dielectric::Dielectric, lambertarian::LambertarianDiffuse, metal::Metal};
@@ -51,11 +53,16 @@ impl From<Dielectric> for Arc<AnyMaterial> {
 }
 
 impl Material for AnyMaterial {
-    fn scatter(&self, incoming_ray: &Ray, hit_record: &HitRecord) -> Option<MaterialScatterOutput> {
+    fn scatter(
+        &self,
+        incoming_ray: &Ray,
+        hit_record: &HitRecord,
+        rng: &mut Xoshiro256Plus,
+    ) -> Option<MaterialScatterOutput> {
         match self {
-            AnyMaterial::Metal(inner) => inner.scatter(incoming_ray, hit_record),
-            AnyMaterial::Lambertarian(inner) => inner.scatter(incoming_ray, hit_record),
-            AnyMaterial::Dielectric(inner) => inner.scatter(incoming_ray, hit_record),
+            AnyMaterial::Metal(inner) => inner.scatter(incoming_ray, hit_record, rng),
+            AnyMaterial::Lambertarian(inner) => inner.scatter(incoming_ray, hit_record, rng),
+            AnyMaterial::Dielectric(inner) => inner.scatter(incoming_ray, hit_record, rng),
         }
     }
 }
@@ -69,8 +76,16 @@ pub trait Material {
     /// Calculates where and in what direction does the light bounce off the surface,
     /// and the color it contributes.
     ///
+    /// Random number generator needs to be provided to speed up generation
+    ///
     /// ## Parameters
     /// * `incoming_ray` - the ray that hits the surface
     /// * `hit_record` - the record of the current hit
-    fn scatter(&self, incoming_ray: &Ray, hit_record: &HitRecord) -> Option<MaterialScatterOutput>;
+    /// * `rng` - random number generator instance (thread local)
+    fn scatter(
+        &self,
+        incoming_ray: &Ray,
+        hit_record: &HitRecord,
+        rng: &mut Xoshiro256Plus,
+    ) -> Option<MaterialScatterOutput>;
 }

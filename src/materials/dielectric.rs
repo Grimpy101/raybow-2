@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+use rand_xoshiro::Xoshiro256Plus;
+
 use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
 
 use super::Material;
@@ -43,6 +45,7 @@ impl Material for Dielectric {
         &self,
         incoming_ray: &crate::ray::Ray,
         hit_record: &crate::objects::HitRecord,
+        _rng: &mut Xoshiro256Plus,
     ) -> Option<super::MaterialScatterOutput> {
         let attenuation = RGBColor::new(1.0, 1.0, 1.0);
         let refraction_ratio = if hit_record.front_face() {
