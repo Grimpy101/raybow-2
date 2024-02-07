@@ -29,13 +29,14 @@ pub fn sky_background(ray: &Ray) -> RGBColor {
 /// ## Parameters
 /// * `parameters` - application parameters
 pub fn prepare_render_data(parameters: &AppParameters) -> SceneData {
-    let camera = Camera::new(
+    let mut camera = Camera::new(
         parameters.output_width,
         parameters.output_height,
         parameters.focal_length,
-        Vector3::new(0.0, 0.0, 0.0),
-        90.0,
+        40.0,
     );
+    camera.look_at(Vector3::new(0.0, 0.0, -1.0));
+    camera.set_position(Vector3::new(-2.0, 2.0, 1.0));
 
     let mut renderables = Renderables::new();
 
@@ -44,8 +45,8 @@ pub fn prepare_render_data(parameters: &AppParameters) -> SceneData {
     let material_left = LambertarianDiffuse::new(RGBColor::new(0.0, 0.0, 1.0));
     let material_right = LambertarianDiffuse::new(RGBColor::new(1.0, 0.0, 0.0));
 
-    let sphere_left = Sphere::new(Vector3::new(-r, 0.0, -1.0), r, material_left);
-    let sphere_right = Sphere::new(Vector3::new(r, 0.0, -1.0), r, material_right);
+    let sphere_left = Sphere::new(Vector3::new(-r, 0.0, -1.5), r, material_left);
+    let sphere_right = Sphere::new(Vector3::new(r, 0.0, -1.5), r, material_right);
 
     renderables.add_hittable(sphere_left);
     renderables.add_hittable(sphere_right);

@@ -3,7 +3,11 @@ use std::f32::consts::PI;
 use rand::Rng;
 use rand_xoshiro::Xoshiro256Plus;
 
+pub mod euler_rotation;
+pub mod matrix;
+pub mod quaternion;
 pub mod vector3;
+pub mod vector4;
 
 /// Generate random normal variable with Box-Muller Transform
 ///

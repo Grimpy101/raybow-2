@@ -6,7 +6,7 @@ use std::{
 use rand::{rngs::ThreadRng, Rng};
 use rand_xoshiro::Xoshiro256Plus;
 
-use super::random_normal;
+use super::{matrix::Matrix3x3, random_normal, vector4::Vector4};
 
 /// A 3D vector implementation with components of type f32
 #[derive(Clone, Copy)]
@@ -97,9 +97,12 @@ impl Vector3 {
     }
 
     /// Calculates a random vector on unit sphere
+    ///
+    /// ## Parameters
+    /// * `rng` - random number generator
     pub fn random_on_unit_sphere(rng: &mut Xoshiro256Plus) -> Self {
         // Uses dropped coordinates method for sampling on n-sphere
-        // We need to protect agains infinite result!!!
+        // We need to protect against infinite result!!!
         let x = random_normal(rng);
         let y = random_normal(rng);
         let z = random_normal(rng);
@@ -146,6 +149,38 @@ impl Vector3 {
             y: self.y / len,
             z: self.z / len,
         }
+    }
+
+    /// Returns cross product of two vectors
+    ///
+    /// ## Parameters
+    /// * `vector1` - First vector
+    /// * `vector2` - Second vector
+    pub fn cross(vector1: Vector3, vector2: Vector3) -> Self {
+        let x = vector1.y * vector2.z - vector1.z * vector2.y;
+        let y = vector1.z * vector2.x - vector1.x * vector2.z;
+        let z = vector1.x * vector2.y - vector1.y * vector2.x;
+        Self { x, y, z }
+    }
+
+    /// Transforms the vector with given matrix
+    ///
+    /// ## Parameters
+    /// * `matrix` - a 3x3 transformation matrix
+    pub fn transform(&self, matrix: Matrix3x3) -> Self {
+        let m = matrix.values();
+        let x = self.x * m[0] + self.y * m[1] + self.z * m[2];
+        let y = self.x * m[3] + self.y * m[4] + self.z * m[5];
+        let z = self.x * m[6] + self.y * m[7] + self.z * m[8];
+
+        Self { x, y, z }
+    }
+
+    /// A helper function to quickly convert to 4-D vector
+    ///
+    /// Sets 1.0 as the last coordinate
+    pub fn to_vector4(&self) -> Vector4 {
+        Vector4::new(self.x, self.y, self.z, 1.0)
     }
 }
 

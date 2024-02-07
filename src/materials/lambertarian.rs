@@ -44,13 +44,14 @@ impl Material for LambertarianDiffuse {
     ) -> Option<super::MaterialScatterOutput> {
         let random_unit_vector = Vector3::random_on_unit_sphere(rng);
         let scatter_direction = hit_record.normal() + random_unit_vector;
+
         // Handles the nasty instance where direction of the new vector
         // is (almost) the same as the normal on the surface,
         // because in that case scatter_direction would be [0.0, 0.0, 0.0]!!
         // TODO: Or does it? Produces weird artefacts...
-        if scatter_direction.near_zero() {
-            //scatter_direction = hit_record.normal();
-        }
+        /*if scatter_direction.near_zero() {
+            scatter_direction = hit_record.normal();
+        }*/
 
         if scatter_direction.is_invalid() {
             log::debug!("{}, {}", hit_record.normal(), random_unit_vector);
