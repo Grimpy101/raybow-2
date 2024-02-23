@@ -1,10 +1,10 @@
-use crate::{color::RGBColor, rendering::RenderResult, AppParameters};
+use crate::{color::RGBColor, rendering::RenderResult, Arguments};
 
 mod gamma_correction;
 
 pub struct PostProcessResult {
-    pub width: u32,
-    pub height: u32,
+    pub width: usize,
+    pub height: usize,
     pub image_data: Vec<RGBColor>,
 }
 
@@ -13,9 +13,9 @@ pub struct PostProcessResult {
 /// ## Parameters
 /// * `parameters` - application configuration arguments
 /// * `render_result` - render result
-pub fn postprocess(parameters: &AppParameters, render_result: &RenderResult) -> PostProcessResult {
+pub fn postprocess(argumets: &Arguments, render_result: &RenderResult) -> PostProcessResult {
     let mut postprocessing_image_data = render_result.image_data.clone();
-    if parameters.gamma_correction {
+    if argumets.gamma_correction {
         gamma_correction::linear_to_gamma_space(&mut postprocessing_image_data);
     }
 

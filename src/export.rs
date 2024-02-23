@@ -1,8 +1,6 @@
 use std::{error::Error, fs};
 
-use crate::{
-    output_formats::ppm::rgb_to_binary_ppm, postprocessing::PostProcessResult, AppParameters,
-};
+use crate::{output_formats::ppm::rgb_to_binary_ppm, postprocessing::PostProcessResult, Arguments};
 
 /// Writes image data to file
 ///
@@ -10,7 +8,7 @@ use crate::{
 /// * `parameters` - global application parameters
 /// * `postprocessing_result` - the result from postprocessing stage
 pub fn export_to_file(
-    parameters: &AppParameters,
+    arguments: &Arguments,
     postprocessing_result: &PostProcessResult,
 ) -> Result<(), Box<dyn Error>> {
     let ppm_data = rgb_to_binary_ppm(
@@ -18,7 +16,8 @@ pub fn export_to_file(
         postprocessing_result.width,
         postprocessing_result.height,
     )?;
-    fs::write(parameters.output_path.clone(), ppm_data)?;
+    let output = format!("{}.ppm", arguments.output_path);
+    fs::write(output, ppm_data)?;
 
     Ok(())
 }

@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use crate::{
     camera::Camera, color::RGBColor, materials::lambertarian::LambertarianDiffuse,
     math::vector3::Vector3, objects::sphere::Sphere, ray::Ray, rendering::renderables::Renderables,
-    AppParameters,
+    Arguments,
 };
 
 pub struct SceneData {
@@ -28,11 +28,11 @@ pub fn sky_background(ray: &Ray) -> RGBColor {
 ///
 /// ## Parameters
 /// * `parameters` - application parameters
-pub fn prepare_render_data(parameters: &AppParameters) -> SceneData {
+pub fn prepare_render_data(arguments: &Arguments) -> SceneData {
     let mut camera = Camera::new(
-        parameters.output_width,
-        parameters.output_height,
-        parameters.focal_length,
+        arguments.output_width,
+        arguments.output_height,
+        arguments.focal_length,
         40.0,
     );
     camera.look_at(Vector3::new(0.0, 0.0, -1.0));

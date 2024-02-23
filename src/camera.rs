@@ -1,5 +1,5 @@
 use crate::{
-    math::{matrix::Matrix4x4, vector3::Vector3},
+    math::{matrix::Matrix4x4, vector3::Vector3, vector4::Vector4},
     ray::Ray,
 };
 
@@ -26,7 +26,7 @@ impl Camera {
     /// * `focal_length` - focal length of camera
     /// * `position` - position of the camera
     /// * `vertical_fov` - vertical field of view
-    pub fn new(width: u32, height: u32, focal_length: f32, vertical_fov: f32) -> Self {
+    pub fn new(width: usize, height: usize, focal_length: f32, vertical_fov: f32) -> Self {
         let width = width as f32;
         let height = height as f32;
 
@@ -114,13 +114,24 @@ impl Camera {
 
     /// Transforms camera with the given transform matrix
     pub fn transform(&mut self, matrix: Matrix4x4) {
-        let origin = self.origin.to_vector4().transform(&matrix);
-        let look_at = self.look_at.to_vector4().transform(&matrix);
-        let up = self.up.to_vector4().transform(&matrix);
+        let origin: Vector4 = self.origin.into();
+        let look_at: Vector4 = self.look_at.into();
+        let up: Vector4 = self.up.into();
+        let transformed_origin: Vector4 = origin.transform(&matrix);
+        let transformed_look_at = look_at.transform(&matrix);
+        let transformed_up = up.transform(&matrix);
 
-        self.origin = Vector3::new(origin.x, origin.y, origin.z);
-        self.look_at = Vector3::new(look_at.x, look_at.y, look_at.z);
-        self.up = Vector3::new(up.x, up.y, up.z);
+        self.origin = Vector3::new(
+            transformed_origin.x,
+            transformed_origin.y,
+            transformed_origin.z,
+        );
+        self.look_at = Vector3::new(
+            transformed_look_at.x,
+            transformed_look_at.y,
+            transformed_look_at.z,
+        );
+        self.up = Vector3::new(transformed_up.x, transformed_up.y, transformed_up.z);
 
         self.update_transforms();
     }
@@ -159,7 +170,7 @@ impl Camera {
     /// ## Parameters
     /// * `i` - horizontal image location of the pixel
     /// * `j` - vertical image location of the pixel
-    pub fn get_pixel_center(&self, i: u32, j: u32) -> Vector3 {
+    pub fn get_pixel_center(&self, i: usize, j: usize) -> Vector3 {
         self.upper_left + (i as f32 * self.horizontal_shift) + (j as f32 * self.vertical_shift)
     }
 
@@ -168,7 +179,7 @@ impl Camera {
     /// ## Parameters
     /// * `i` - horizontal image location of the pixel
     /// * `j` - vertical image location of the pixel
-    pub fn get_random_location_on_pixel(&self, i: u32, j: u32) -> Vector3 {
+    pub fn get_random_location_on_pixel(&self, i: usize, j: usize) -> Vector3 {
         let pixel_center = self.get_pixel_center(i, j);
         pixel_center + self.sample_pixel_square()
     }
@@ -185,7 +196,7 @@ impl Camera {
     /// ## Parameters
     /// * `i` - horizontal image location of the pixel
     /// * `j` - vertical image location of the pixel
-    pub fn get_ray_through_pixel_center(&self, i: u32, j: u32) -> Ray {
+    pub fn get_ray_through_pixel_center(&self, i: usize, j: usize) -> Ray {
         let origin = self.origin;
         let direction = self.get_pixel_center(i, j) - self.origin;
         Ray::new(origin, direction)
@@ -198,7 +209,7 @@ impl Camera {
     /// ## Parameters
     /// * `i` - horizontal image location of the pixel
     /// * `j` - vertical image location of the pixel
-    pub fn get_random_ray_through_pixel(&self, i: u32, j: u32) -> Ray {
+    pub fn get_random_ray_through_pixel(&self, i: usize, j: usize) -> Ray {
         let origin = self.origin;
         let direction = self.get_random_location_on_pixel(i, j) - self.origin;
         Ray::new(origin, direction)

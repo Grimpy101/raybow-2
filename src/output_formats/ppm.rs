@@ -10,11 +10,11 @@ use super::ExportError;
 /// * `height` - height of image
 pub fn rgb_to_binary_ppm(
     rgb_data: &[RGBColor],
-    width: u32,
-    height: u32,
+    width: usize,
+    height: usize,
 ) -> Result<Vec<u8>, ExportError> {
     // Check if we actually have enough data
-    if width * height > rgb_data.len() as u32 {
+    if width * height > rgb_data.len() {
         return Err(ExportError::SizeExceedsData(width, height, rgb_data.len()));
     }
 
@@ -45,11 +45,11 @@ pub fn rgb_to_binary_ppm(
 /// * `height` - height of image
 pub fn rgb_to_ascii_ppm(
     rgb_data: &[RGBColor],
-    width: u32,
-    height: u32,
+    width: usize,
+    height: usize,
 ) -> Result<Vec<u8>, ExportError> {
     // Check if we actually have enough data
-    if width * height > rgb_data.len() as u32 {
+    if width * height > rgb_data.len() {
         return Err(ExportError::SizeExceedsData(width, height, rgb_data.len()));
     }
 

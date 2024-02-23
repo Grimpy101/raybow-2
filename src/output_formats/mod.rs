@@ -7,7 +7,7 @@ pub mod ppm;
 pub enum ExportError {
     /// First two parameters are width and height,
     /// then actual data size
-    SizeExceedsData(u32, u32, usize),
+    SizeExceedsData(usize, usize, usize),
 }
 
 impl Display for ExportError {

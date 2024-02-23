@@ -4,7 +4,7 @@ pub mod render;
 pub mod renderables;
 
 pub struct RenderResult {
-    pub width: u32,
-    pub height: u32,
+    pub width: usize,
+    pub height: usize,
     pub image_data: Vec<RGBColor>,
 }

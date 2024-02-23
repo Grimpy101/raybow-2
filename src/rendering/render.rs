@@ -3,7 +3,7 @@ use rand_xoshiro::Xoshiro256Plus;
 
 use crate::{
     color::RGBColor, interval::Interval, materials::Material, objects::Hittable,
-    preparation::SceneData, progress::ProgressTracker, ray::Ray, AppParameters,
+    preparation::SceneData, progress::ProgressTracker, ray::Ray, Arguments,
 };
 
 use super::RenderResult;
@@ -14,7 +14,12 @@ use super::RenderResult;
 /// ## Parameters
 /// * `ray`
 /// * `scene_data`
-fn ray_color(ray: &Ray, scene_data: &SceneData, depth: u32, rng: &mut Xoshiro256Plus) -> RGBColor {
+fn ray_color(
+    ray: &Ray,
+    scene_data: &SceneData,
+    depth: usize,
+    rng: &mut Xoshiro256Plus,
+) -> RGBColor {
     // After some steps we conclude that the recursion
     // will not hit a light source, so we return black
     if depth == 0 {
@@ -44,9 +49,9 @@ fn ray_color(ray: &Ray, scene_data: &SceneData, depth: u32, rng: &mut Xoshiro256
 /// ## Parameters
 /// * `parameters` - global application parameters
 /// * `scene_data` - scene data to render
-pub fn render(parameters: &AppParameters, scene_data: SceneData) -> RenderResult {
-    let width = parameters.output_width;
-    let height = parameters.output_height;
+pub fn render(arguments: &Arguments, scene_data: SceneData) -> RenderResult {
+    let width = arguments.output_width;
+    let height = arguments.output_height;
 
     let camera = &scene_data.camera;
 
@@ -56,27 +61,27 @@ pub fn render(parameters: &AppParameters, scene_data: SceneData) -> RenderResult
     // Random number generator - fast (less accurate) implementation
     let mut rng = Xoshiro256Plus::from_rng(thread_rng()).expect("Could not get RNG");
 
-    let mut color_data = Vec::with_capacity((width * height) as usize);
+    let mut color_data = Vec::with_capacity(width * height);
     for y in 0..height {
         for x in 0..width {
             let mut pixel_color = RGBColor::new(0.0, 0.0, 0.0);
 
-            if parameters.samples_per_pixel == 1 {
+            if arguments.samples_per_pixel == 1 {
                 // We only shoot one ray through the center
                 let ray = camera.get_ray_through_pixel_center(x, y);
-                let result = ray_color(&ray, &scene_data, parameters.steps, &mut rng);
+                let result = ray_color(&ray, &scene_data, arguments.steps, &mut rng);
                 pixel_color = result;
             } else {
                 // For more rays, we do random sampling inside pixel
-                for _ in 0..parameters.samples_per_pixel {
+                for _ in 0..arguments.samples_per_pixel {
                     let ray = camera.get_random_ray_through_pixel(x, y);
-                    let new_result = ray_color(&ray, &scene_data, parameters.steps, &mut rng);
+                    let new_result = ray_color(&ray, &scene_data, arguments.steps, &mut rng);
                     pixel_color = pixel_color + new_result;
                 }
             }
 
             // We take average of all color samples
-            pixel_color = pixel_color / parameters.samples_per_pixel as f32;
+            pixel_color = pixel_color / arguments.samples_per_pixel as f32;
             color_data.push(pixel_color);
 
             if let Some(progress) = progress_tracker.increment() {

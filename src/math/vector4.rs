@@ -1,4 +1,4 @@
-use super::matrix::Matrix4x4;
+use super::{matrix::Matrix4x4, vector3::Vector3};
 
 /// A 3D vector implementation with components of type f32
 #[derive(Clone, Copy, Debug)]
@@ -32,5 +32,19 @@ impl Vector4 {
         w /= w;
 
         Self { x, y, z, w }
+    }
+}
+
+impl From<Vector3> for Vector4 {
+    /// Converts [Vector3] to [Vector4]
+    ///
+    /// WARNING: Sets 1.0 as `w` coordinate
+    fn from(val: Vector3) -> Self {
+        Vector4 {
+            x: val.x,
+            y: val.y,
+            z: val.z,
+            w: 1.0,
+        }
     }
 }

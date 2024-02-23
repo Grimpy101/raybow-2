@@ -6,7 +6,7 @@ use std::{
 use rand::{rngs::ThreadRng, Rng};
 use rand_xoshiro::Xoshiro256Plus;
 
-use super::{matrix::Matrix3x3, random_normal, vector4::Vector4};
+use super::{matrix::Matrix3x3, random_normal};
 
 /// A 3D vector implementation with components of type f32
 #[derive(Clone, Copy)]
@@ -174,13 +174,6 @@ impl Vector3 {
         let z = self.x * m[6] + self.y * m[7] + self.z * m[8];
 
         Self { x, y, z }
-    }
-
-    /// A helper function to quickly convert to 4-D vector
-    ///
-    /// Sets 1.0 as the last coordinate
-    pub fn to_vector4(&self) -> Vector4 {
-        Vector4::new(self.x, self.y, self.z, 1.0)
     }
 }
 
