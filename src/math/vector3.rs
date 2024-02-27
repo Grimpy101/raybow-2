@@ -1,4 +1,5 @@
 use std::{
+    f32::consts::PI,
     fmt::{Debug, Display},
     ops::{Add, Div, Mul, Neg, Sub},
 };
@@ -23,11 +24,11 @@ impl Vector3 {
     }
 
     /// Creates a random vector with components in range `[0.0, 1.0]`
-    pub fn random() -> Self {
+    pub fn random(rng: &mut Xoshiro256Plus) -> Self {
         Self {
-            x: rand::random::<f32>(),
-            y: rand::random::<f32>(),
-            z: rand::random::<f32>(),
+            x: rng.gen(),
+            y: rng.gen(),
+            z: rng.gen(),
         }
     }
 
@@ -126,6 +127,14 @@ impl Vector3 {
             y: norm_y,
             z: norm_z,
         }
+    }
+
+    pub fn random_on_unit_disk(rng: &mut Xoshiro256Plus) -> Self {
+        let r = rng.gen::<f32>().sqrt();
+        let phi = 2.0 * PI * rng.gen::<f32>();
+        let x = r * phi.cos();
+        let y = r * phi.sin();
+        Self { x, y, z: 0.0 }
     }
 
     /// Calculates dot product of two vectors

@@ -74,7 +74,7 @@ pub fn render(arguments: &Arguments, scene_data: SceneData) -> RenderResult {
             } else {
                 // For more rays, we do random sampling inside pixel
                 for _ in 0..arguments.samples_per_pixel {
-                    let ray = camera.get_random_ray_through_pixel(x, y);
+                    let ray = camera.get_random_ray_through_pixel(x, y, &mut rng);
                     let new_result = ray_color(&ray, &scene_data, arguments.steps, &mut rng);
                     pixel_color = pixel_color + new_result;
                 }

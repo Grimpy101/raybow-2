@@ -2,8 +2,6 @@ use std::time::Instant;
 
 use argh::FromArgs;
 
-use crate::postprocessing::postprocess;
-
 mod camera;
 mod color;
 mod export;
@@ -33,7 +31,13 @@ pub struct Arguments {
     output_height: usize,
     /// focal length of the camera [f32]
     #[argh(option, default = "1.0")]
-    focal_length: f32,
+    fov: f32,
+    /// distance of the depth-of-field plane from camera [f32]
+    #[argh(option, default = "1.0")]
+    dof_distance: f32,
+    /// blurriness of the depth-of-field effect [f32]
+    #[argh(option, default = "0.0")]
+    dof_size: f32,
     /// amount of rays to send from each pixel [u32] (more means better quality and anti-aliasing, but is slower)
     #[argh(option, default = "1")]
     samples_per_pixel: usize,
@@ -80,7 +84,7 @@ fn main() -> Result<(), String> {
 
     // ------ POSTPROCESSING ------- //
     log::info!("Postprocessing...");
-    let postprocessing_result = postprocess(&arguments, &render_result);
+    let postprocessing_result = postprocessing::postprocess(&arguments, &render_result);
 
     // -------- EXPORT PASS -------- //
     log::info!("Writing to files...");
