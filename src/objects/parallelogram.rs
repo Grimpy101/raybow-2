@@ -9,7 +9,7 @@ use super::{HitRecord, Hittable};
 /// The parallelogram is defined by a bottom left point
 /// and two vectors pointing from bottom left point
 /// to the other three points
-pub struct Paralellogram {
+pub struct Parallelogram {
     bottom_left_point: Vec3A,
     up: Vec3A,
     right: Vec3A,
@@ -20,7 +20,7 @@ pub struct Paralellogram {
     material: Arc<AnyMaterial>,
 }
 
-impl Paralellogram {
+impl Parallelogram {
     pub fn new<M>(bottom_left_point: Vec3A, up: Vec3A, right: Vec3A, material: M) -> Self
     where
         M: Into<Arc<AnyMaterial>>,
@@ -42,7 +42,7 @@ impl Paralellogram {
     }
 }
 
-impl Hittable for Paralellogram {
+impl Hittable for Parallelogram {
     fn hit(&self, ray: &Ray, ray_interval: Interval) -> Option<HitRecord> {
         let denominator = self.normal.dot(ray.direction());
 

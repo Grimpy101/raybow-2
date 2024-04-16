@@ -4,7 +4,7 @@ use glam::Vec3A;
 
 use crate::{interval::Interval, materials::AnyMaterial, ray::Ray};
 
-use self::{parallelogram::Paralellogram, sphere::Sphere};
+use self::{parallelogram::Parallelogram, sphere::Sphere};
 
 pub mod parallelogram;
 pub mod sphere;
@@ -102,7 +102,7 @@ impl Debug for HitRecord {
 
 pub enum AnyHittable {
     Sphere(Sphere),
-    Paralellogram(Paralellogram),
+    Paralellogram(Parallelogram),
 }
 
 impl From<Sphere> for AnyHittable {
@@ -117,8 +117,8 @@ impl From<Sphere> for Arc<AnyHittable> {
     }
 }
 
-impl From<Paralellogram> for Arc<AnyHittable> {
-    fn from(value: Paralellogram) -> Self {
+impl From<Parallelogram> for Arc<AnyHittable> {
+    fn from(value: Parallelogram) -> Self {
         Self::new(AnyHittable::Paralellogram(value))
     }
 }

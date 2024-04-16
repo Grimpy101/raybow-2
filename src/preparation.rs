@@ -6,7 +6,7 @@ use crate::{
     camera::Camera,
     color::RGBColor,
     materials::lambertarian::LambertarianDiffuse,
-    objects::{parallelogram::Paralellogram, sphere::Sphere},
+    objects::{parallelogram::Parallelogram, sphere::Sphere},
     ray::Ray,
     rendering::renderables::Renderables,
     Arguments,
@@ -54,7 +54,7 @@ pub fn prepare_render_data(arguments: &Arguments) -> SceneData {
     let sphere_right = Sphere::new((r, 0.0, -1.0).into(), r, material_right);
 
     let material_plane = LambertarianDiffuse::new(RGBColor::new(0.0, 1.0, 0.0));
-    let plane = Paralellogram::new(
+    let plane = Parallelogram::new(
         (-1.0, 0.0, -1.0).into(),
         (1.0, 0.0, 0.0).into(),
         (0.0, 0.0, 1.0).into(),
