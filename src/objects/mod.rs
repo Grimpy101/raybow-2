@@ -4,7 +4,7 @@ use glam::Vec3A;
 
 use crate::{interval::Interval, materials::AnyMaterial, ray::Ray};
 
-use self::sphere::Sphere;
+use self::{parallelogram::Paralellogram, sphere::Sphere};
 
 pub mod parallelogram;
 pub mod sphere;
@@ -102,6 +102,7 @@ impl Debug for HitRecord {
 
 pub enum AnyHittable {
     Sphere(Sphere),
+    Paralellogram(Paralellogram),
 }
 
 impl From<Sphere> for AnyHittable {
@@ -116,10 +117,17 @@ impl From<Sphere> for Arc<AnyHittable> {
     }
 }
 
+impl From<Paralellogram> for Arc<AnyHittable> {
+    fn from(value: Paralellogram) -> Self {
+        Self::new(AnyHittable::Paralellogram(value))
+    }
+}
+
 impl Hittable for AnyHittable {
     fn hit(&self, ray: &Ray, ray_interval: Interval) -> Option<HitRecord> {
         match self {
             AnyHittable::Sphere(inner) => inner.hit(ray, ray_interval),
+            AnyHittable::Paralellogram(inner) => inner.hit(ray, ray_interval),
         }
     }
 }

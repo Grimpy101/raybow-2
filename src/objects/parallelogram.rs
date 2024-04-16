@@ -59,6 +59,17 @@ impl Hittable for Paralellogram {
 
         let intersection = ray.at(t);
 
+        // We express intersection with `up` and `right` ray.
+        // If coefficients are between 0.0 and 1.0, the intersection is on the parallelogram.
+        let p = intersection - self.bottom_left_point;
+        let a = self.w.dot(p.cross(self.up));
+        let b = self.w.dot(self.right.cross(p));
+
+        let unit_interval = Interval::new(0.0, 1.0);
+        if !unit_interval.contains(a) || !unit_interval.contains(b) {
+            return None;
+        }
+
         let mut hit_record =
             HitRecord::new(intersection, self.normal, t, true, self.material.clone());
         hit_record.set_face_normal(ray, self.normal);

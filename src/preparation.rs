@@ -3,8 +3,13 @@ use std::f32::consts::PI;
 use glam::Vec3A;
 
 use crate::{
-    camera::Camera, color::RGBColor, materials::lambertarian::LambertarianDiffuse,
-    objects::sphere::Sphere, ray::Ray, rendering::renderables::Renderables, Arguments,
+    camera::Camera,
+    color::RGBColor,
+    materials::lambertarian::LambertarianDiffuse,
+    objects::{parallelogram::Paralellogram, sphere::Sphere},
+    ray::Ray,
+    rendering::renderables::Renderables,
+    Arguments,
 };
 
 pub struct SceneData {
@@ -45,11 +50,20 @@ pub fn prepare_render_data(arguments: &Arguments) -> SceneData {
     let material_left = LambertarianDiffuse::new(RGBColor::new(0.0, 0.0, 1.0));
     let material_right = LambertarianDiffuse::new(RGBColor::new(1.0, 0.0, 0.0));
 
-    let sphere_left = Sphere::new(Vec3A::new(-r, 0.0, -1.0), r, material_left);
-    let sphere_right = Sphere::new(Vec3A::new(r, 0.0, -1.0), r, material_right);
+    let sphere_left = Sphere::new((-r, 0.0, -1.0).into(), r, material_left);
+    let sphere_right = Sphere::new((r, 0.0, -1.0).into(), r, material_right);
+
+    let material_plane = LambertarianDiffuse::new(RGBColor::new(0.0, 1.0, 0.0));
+    let plane = Paralellogram::new(
+        (-1.0, 0.0, -1.0).into(),
+        (1.0, 0.0, 0.0).into(),
+        (0.0, 0.0, 1.0).into(),
+        material_plane,
+    );
 
     renderables.add_hittable(sphere_left);
     renderables.add_hittable(sphere_right);
+    renderables.add_hittable(plane);
 
     SceneData {
         camera,
