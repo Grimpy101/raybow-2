@@ -1,17 +1,20 @@
 use std::{fmt::Debug, sync::Arc};
 
-use crate::{interval::Interval, materials::AnyMaterial, math::vector3::Vector3, ray::Ray};
+use glam::Vec3A;
+
+use crate::{interval::Interval, materials::AnyMaterial, ray::Ray};
 
 use self::sphere::Sphere;
 
+pub mod parallelogram;
 pub mod sphere;
 
 /// A helper struct that stores information
 /// about the hit, such as the location of the
 /// hit, the normal and the parameter t along the ray
 pub struct HitRecord {
-    point: Vector3,
-    normal: Vector3,
+    point: Vec3A,
+    normal: Vec3A,
     t: f32,
     front_face: bool,
     material: Arc<AnyMaterial>,
@@ -19,8 +22,8 @@ pub struct HitRecord {
 
 impl HitRecord {
     pub fn new(
-        point: Vector3,
-        normal: Vector3,
+        point: Vec3A,
+        normal: Vec3A,
         t: f32,
         front_face: bool,
         material: Arc<AnyMaterial>,
@@ -43,8 +46,8 @@ impl HitRecord {
     /// ## Parameters
     /// * `ray`
     /// * `outward_normal` - should always be normalized!
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vector3) {
-        self.front_face = ray.direction().dot(&outward_normal) < 0.0;
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3A) {
+        self.front_face = ray.direction().dot(outward_normal) < 0.0;
         self.normal = if self.front_face {
             outward_normal
         } else {
@@ -58,12 +61,12 @@ impl HitRecord {
     }
 
     /// Get current normal of the hit point
-    pub fn normal(&self) -> Vector3 {
+    pub fn normal(&self) -> Vec3A {
         self.normal
     }
 
     /// Get current hit point
-    pub fn point(&self) -> Vector3 {
+    pub fn point(&self) -> Vec3A {
         self.point
     }
 

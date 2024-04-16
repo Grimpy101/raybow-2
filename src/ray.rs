@@ -1,8 +1,8 @@
-use crate::math::vector3::Vector3;
+use glam::Vec3A;
 
 pub struct Ray {
-    origin: Vector3,
-    direction: Vector3,
+    origin: Vec3A,
+    direction: Vec3A,
 }
 
 impl Ray {
@@ -11,17 +11,17 @@ impl Ray {
     /// ## Parameters
     /// * `origin` - where the ray starts
     /// * `direction` - direction of the ray
-    pub fn new(origin: Vector3, direction: Vector3) -> Self {
+    pub fn new(origin: Vec3A, direction: Vec3A) -> Self {
         Self { origin, direction }
     }
 
     /// Retrieves direction of the ray
-    pub fn direction(&self) -> Vector3 {
+    pub fn direction(&self) -> Vec3A {
         self.direction
     }
 
     /// Retrieves origin of the ray
-    pub fn origin(&self) -> Vector3 {
+    pub fn origin(&self) -> Vec3A {
         self.origin
     }
 
@@ -29,7 +29,7 @@ impl Ray {
     ///
     /// ## Parameters
     /// * `t` - represents distance along the ray
-    pub fn at(&self, t: f32) -> Vector3 {
+    pub fn at(&self, t: f32) -> Vec3A {
         self.origin + t * self.direction
     }
 }

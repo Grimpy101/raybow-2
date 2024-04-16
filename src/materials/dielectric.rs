@@ -2,7 +2,12 @@ use std::rc::Rc;
 
 use rand_xoshiro::Xoshiro256Plus;
 
-use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
+use crate::{
+    color::RGBColor,
+    math::{reflect, refract},
+    objects::HitRecord,
+    ray::Ray,
+};
 
 use super::Material;
 
@@ -43,8 +48,8 @@ impl Dielectric {
 impl Material for Dielectric {
     fn scatter(
         &self,
-        incoming_ray: &crate::ray::Ray,
-        hit_record: &crate::objects::HitRecord,
+        incoming_ray: &Ray,
+        hit_record: &HitRecord,
         _rng: &mut Xoshiro256Plus,
     ) -> Option<super::MaterialScatterOutput> {
         let attenuation = RGBColor::new(1.0, 1.0, 1.0);
@@ -56,7 +61,7 @@ impl Material for Dielectric {
 
         let unit_direction = incoming_ray.direction().normalize();
 
-        let cos_theta = -unit_direction.dot(&hit_record.normal()).min(1.0);
+        let cos_theta = -unit_direction.dot(hit_record.normal()).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         // We need to check if the ray can refract! Due to Snell's law,
@@ -68,9 +73,9 @@ impl Material for Dielectric {
             Dielectric::reflectance(cos_theta, refraction_ratio) > rand::random();
 
         let direction = if cannot_refract || randomly_reflects {
-            Vector3::reflect(unit_direction, hit_record.normal())
+            reflect(unit_direction, hit_record.normal())
         } else {
-            Vector3::refract(unit_direction, hit_record.normal(), refraction_ratio)
+            refract(unit_direction, hit_record.normal(), refraction_ratio)
         };
 
         let scattered_ray = Ray::new(hit_record.point(), direction);

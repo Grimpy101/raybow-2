@@ -2,9 +2,14 @@ use std::sync::Arc;
 
 use rand_xoshiro::Xoshiro256Plus;
 
-use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
+use crate::{
+    color::RGBColor,
+    math::{is_invalid_vector, random_on_unit_sphere},
+    objects::HitRecord,
+    ray::Ray,
+};
 
-use super::Material;
+use super::{Material, MaterialScatterOutput};
 
 /// Lambertarian diffuse material
 ///
@@ -38,11 +43,11 @@ impl LambertarianDiffuse {
 impl Material for LambertarianDiffuse {
     fn scatter(
         &self,
-        _incoming_ray: &crate::ray::Ray,
-        hit_record: &crate::objects::HitRecord,
+        _incoming_ray: &Ray,
+        hit_record: &HitRecord,
         rng: &mut Xoshiro256Plus,
-    ) -> Option<super::MaterialScatterOutput> {
-        let random_unit_vector = Vector3::random_on_unit_sphere(rng);
+    ) -> Option<MaterialScatterOutput> {
+        let random_unit_vector = random_on_unit_sphere(rng);
         let scatter_direction = hit_record.normal() + random_unit_vector;
 
         // Handles the nasty instance where direction of the new vector
@@ -53,7 +58,7 @@ impl Material for LambertarianDiffuse {
             scatter_direction = hit_record.normal();
         }*/
 
-        if scatter_direction.is_invalid() {
+        if is_invalid_vector(scatter_direction) {
             log::debug!("{}, {}", hit_record.normal(), random_unit_vector);
         }
 

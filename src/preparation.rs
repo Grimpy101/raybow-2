@@ -1,9 +1,10 @@
 use std::f32::consts::PI;
 
+use glam::Vec3A;
+
 use crate::{
     camera::Camera, color::RGBColor, materials::lambertarian::LambertarianDiffuse,
-    math::vector3::Vector3, objects::sphere::Sphere, ray::Ray, rendering::renderables::Renderables,
-    Arguments,
+    objects::sphere::Sphere, ray::Ray, rendering::renderables::Renderables, Arguments,
 };
 
 pub struct SceneData {
@@ -34,8 +35,8 @@ pub fn prepare_render_data(arguments: &Arguments) -> SceneData {
     camera.set_height(arguments.output_height);
     camera.set_vertical_fov(arguments.fov);
     camera.set_defocus(arguments.dof_distance, arguments.dof_size);
-    camera.look_at(Vector3::new(0.0, 0.0, -1.0));
-    camera.set_position(Vector3::new(-2.0, 2.0, 1.0));
+    camera.look_at(Vec3A::new(0.0, 0.0, -1.0));
+    camera.set_position(Vec3A::new(-3.0, 3.0, 1.0));
 
     let mut renderables = Renderables::new();
 
@@ -44,8 +45,8 @@ pub fn prepare_render_data(arguments: &Arguments) -> SceneData {
     let material_left = LambertarianDiffuse::new(RGBColor::new(0.0, 0.0, 1.0));
     let material_right = LambertarianDiffuse::new(RGBColor::new(1.0, 0.0, 0.0));
 
-    let sphere_left = Sphere::new(Vector3::new(-r, 0.0, -1.0), r, material_left);
-    let sphere_right = Sphere::new(Vector3::new(r, 0.0, -1.0), r, material_right);
+    let sphere_left = Sphere::new(Vec3A::new(-r, 0.0, -1.0), r, material_left);
+    let sphere_right = Sphere::new(Vec3A::new(r, 0.0, -1.0), r, material_right);
 
     renderables.add_hittable(sphere_left);
     renderables.add_hittable(sphere_right);

@@ -30,7 +30,7 @@ pub struct Arguments {
     #[argh(option, default = "256")]
     output_height: usize,
     /// focal length of the camera [f32]
-    #[argh(option, default = "1.0")]
+    #[argh(option, default = "45.0")]
     fov: f32,
     /// distance of the depth-of-field plane from camera [f32]
     #[argh(option, default = "1.0")]

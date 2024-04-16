@@ -2,9 +2,14 @@ use std::rc::Rc;
 
 use rand_xoshiro::Xoshiro256Plus;
 
-use crate::{color::RGBColor, math::vector3::Vector3, ray::Ray};
+use crate::{
+    color::RGBColor,
+    math::{random_on_unit_sphere, reflect},
+    objects::HitRecord,
+    ray::Ray,
+};
 
-use super::Material;
+use super::{Material, MaterialScatterOutput};
 
 /// Metallic material
 ///
@@ -48,17 +53,17 @@ impl Metal {
 impl Material for Metal {
     fn scatter(
         &self,
-        incoming_ray: &crate::ray::Ray,
-        hit_record: &crate::objects::HitRecord,
+        incoming_ray: &Ray,
+        hit_record: &HitRecord,
         rng: &mut Xoshiro256Plus,
-    ) -> Option<super::MaterialScatterOutput> {
+    ) -> Option<MaterialScatterOutput> {
         // We reflect the ray over the normal so the bounce is clean.
         // We achieve roughness by shifting scatter direction by a random unit vector, scaled by roughness parameter
-        let reflected = Vector3::reflect(incoming_ray.direction().normalize(), hit_record.normal())
-            + self.roughness * Vector3::random_on_unit_sphere(rng);
+        let reflected = reflect(incoming_ray.direction().normalize(), hit_record.normal())
+            + self.roughness * random_on_unit_sphere(rng);
         let scattered_ray = Ray::new(hit_record.point(), reflected);
         let attenuation = self.albedo;
-        if scattered_ray.direction().dot(&hit_record.normal()) > 0.0 {
+        if scattered_ray.direction().dot(hit_record.normal()) > 0.0 {
             Some(super::MaterialScatterOutput {
                 scattered_ray,
                 attenuation,

@@ -1,18 +1,16 @@
+use glam::{Mat4, Vec3A, Vec4, Vec4Swizzles};
 use rand::Rng;
 use rand_xoshiro::Xoshiro256Plus;
 
-use crate::{
-    math::{matrix::Matrix4x4, vector3::Vector3, vector4::Vector4},
-    ray::Ray,
-};
+use crate::{math::random_on_unit_disk, ray::Ray};
 
 pub struct Camera {
-    origin: Vector3,
-    look_at: Vector3,
-    up: Vector3,
-    upper_left: Vector3,
-    horizontal_shift: Vector3,
-    vertical_shift: Vector3,
+    origin: Vec3A,
+    look_at: Vec3A,
+    up: Vec3A,
+    upper_left: Vec3A,
+    horizontal_shift: Vec3A,
+    vertical_shift: Vec3A,
 
     width: f32,
     height: f32,
@@ -20,8 +18,8 @@ pub struct Camera {
 
     dof_angle: f32,
     dof_distance: f32,
-    dof_disk_horizontal: Vector3,
-    dof_disk_vertical: Vector3,
+    dof_disk_horizontal: Vec3A,
+    dof_disk_vertical: Vec3A,
 }
 
 impl Default for Camera {
@@ -29,16 +27,16 @@ impl Default for Camera {
         let width = 256.0;
         let height = 256.0;
         let vertical_fov = 60.0f32;
-        let origin = Vector3::new(0.0, 0.0, 0.0);
-        let look_at = Vector3::new(0.0, 0.0, -1.0);
-        let up = Vector3::new(0.0, 1.0, 0.0);
-        let upper_left = Vector3::new(0.0, 0.0, 0.0);
-        let pixel_horizontal_shift = Vector3::new(0.0, 0.0, 0.0);
-        let pixel_vertical_shift = Vector3::new(0.0, 0.0, 0.0);
+        let origin = Vec3A::new(0.0, 0.0, 0.0);
+        let look_at = Vec3A::new(0.0, 0.0, -1.0);
+        let up = Vec3A::new(0.0, 1.0, 0.0);
+        let upper_left = Vec3A::new(0.0, 0.0, 0.0);
+        let pixel_horizontal_shift = Vec3A::new(0.0, 0.0, 0.0);
+        let pixel_vertical_shift = Vec3A::new(0.0, 0.0, 0.0);
         let dof_angle = 0.0;
         let dof_distance = 1.0;
-        let dof_disk_horizontal = Vector3::new(0.0, 0.0, 0.0);
-        let dof_disk_vertical = Vector3::new(0.0, 0.0, 0.0);
+        let dof_disk_horizontal = Vec3A::new(0.0, 0.0, 0.0);
+        let dof_disk_vertical = Vec3A::new(0.0, 0.0, 0.0);
 
         let mut camera = Self {
             origin,
@@ -83,16 +81,16 @@ impl Camera {
             panic!("Width or height of camera is 0.0!");
         }
 
-        let origin = Vector3::new(0.0, 0.0, 0.0);
-        let look_at = Vector3::new(0.0, 0.0, -1.0);
-        let look_up = Vector3::new(0.0, 1.0, 0.0);
+        let origin = Vec3A::new(0.0, 0.0, 0.0);
+        let look_at = Vec3A::new(0.0, 0.0, -1.0);
+        let look_up = Vec3A::new(0.0, 1.0, 0.0);
 
-        let upper_left = Vector3::new(0.0, 0.0, 0.0);
-        let horizontal_shift = Vector3::new(0.0, 0.0, 0.0);
-        let vertical_shift = Vector3::new(0.0, 0.0, 0.0);
+        let upper_left = Vec3A::new(0.0, 0.0, 0.0);
+        let horizontal_shift = Vec3A::new(0.0, 0.0, 0.0);
+        let vertical_shift = Vec3A::new(0.0, 0.0, 0.0);
 
-        let dof_disk_horizontal = Vector3::new(0.0, 0.0, 0.0);
-        let dof_disk_vertical = Vector3::new(0.0, 0.0, 0.0);
+        let dof_disk_horizontal = Vec3A::new(0.0, 0.0, 0.0);
+        let dof_disk_vertical = Vec3A::new(0.0, 0.0, 0.0);
 
         let mut camera = Self {
             origin,
@@ -116,7 +114,7 @@ impl Camera {
     /// Sets the up vector of the camera
     ///
     /// This decides how the in-camera view is rotated
-    pub fn set_up_direction(&mut self, up: Vector3) {
+    pub fn set_up_direction(&mut self, up: Vec3A) {
         self.up = up;
         self.update_transforms();
     }
@@ -140,7 +138,7 @@ impl Camera {
     }
 
     /// Sets the position (origin) of camera
-    pub fn set_position(&mut self, position: Vector3) {
+    pub fn set_position(&mut self, position: Vec3A) {
         self.origin = position;
         self.update_transforms();
     }
@@ -152,31 +150,23 @@ impl Camera {
     }
 
     /// Sets the point at which the camera looks
-    pub fn look_at(&mut self, look_at: Vector3) {
+    pub fn look_at(&mut self, look_at: Vec3A) {
         self.look_at = look_at.normalize();
         self.update_transforms();
     }
 
     /// Transforms camera with the given transform matrix
-    pub fn transform(&mut self, matrix: Matrix4x4) {
-        let origin: Vector4 = self.origin.into();
-        let look_at: Vector4 = self.look_at.into();
-        let up: Vector4 = self.up.into();
-        let transformed_origin: Vector4 = origin.transform(&matrix);
-        let transformed_look_at = look_at.transform(&matrix);
-        let transformed_up = up.transform(&matrix);
+    pub fn transform(&mut self, matrix: Mat4) {
+        let origin: Vec4 = self.origin.extend(1.0);
+        let look_at: Vec4 = self.look_at.extend(1.0);
+        let up: Vec4 = self.up.extend(1.0);
+        let transformed_origin = matrix * origin;
+        let transformed_look_at = matrix * look_at;
+        let transformed_up = matrix * up;
 
-        self.origin = Vector3::new(
-            transformed_origin.x,
-            transformed_origin.y,
-            transformed_origin.z,
-        );
-        self.look_at = Vector3::new(
-            transformed_look_at.x,
-            transformed_look_at.y,
-            transformed_look_at.z,
-        );
-        self.up = Vector3::new(transformed_up.x, transformed_up.y, transformed_up.z);
+        self.origin = transformed_origin.xyz().into();
+        self.look_at = transformed_look_at.xyz().into();
+        self.up = transformed_up.xyz().into();
 
         self.update_transforms();
     }
@@ -190,8 +180,8 @@ impl Camera {
         let viewport_width = viewport_height * aspect_ratio;
 
         let look_difference = (self.origin - self.look_at).normalize();
-        let side_direction = Vector3::cross(self.up, look_difference).normalize();
-        let up_direction = Vector3::cross(look_difference, side_direction);
+        let side_direction = self.up.cross(look_difference).normalize();
+        let up_direction = look_difference.cross(side_direction);
 
         let viewport_side = viewport_width * side_direction;
         let viewport_up = viewport_height * (-up_direction);
@@ -222,7 +212,7 @@ impl Camera {
     /// ## Parameters
     /// * `i` - horizontal image location of the pixel
     /// * `j` - vertical image location of the pixel
-    pub fn get_pixel_center(&self, i: usize, j: usize) -> Vector3 {
+    pub fn get_pixel_center(&self, i: usize, j: usize) -> Vec3A {
         self.upper_left + (i as f32 * self.horizontal_shift) + (j as f32 * self.vertical_shift)
     }
 
@@ -237,7 +227,7 @@ impl Camera {
         i: usize,
         j: usize,
         rng: &mut Xoshiro256Plus,
-    ) -> Vector3 {
+    ) -> Vec3A {
         let pixel_center = self.get_pixel_center(i, j);
         pixel_center + self.sample_pixel_square(rng)
     }
@@ -246,7 +236,7 @@ impl Camera {
     ///
     /// ## Parameters
     /// * `rng` - instance of a random value generator
-    pub fn sample_pixel_square(&self, rng: &mut Xoshiro256Plus) -> Vector3 {
+    pub fn sample_pixel_square(&self, rng: &mut Xoshiro256Plus) -> Vec3A {
         let px = -0.5 + rng.gen::<f32>();
         let py = -0.5 + rng.gen::<f32>();
         px * self.horizontal_shift + py * self.vertical_shift
@@ -285,7 +275,7 @@ impl Camera {
             // Since the projection plane is the same as the DOF plane,
             // the rays hit "correctly" only in that region, making everything
             // else blurry.
-            let p = Vector3::random_on_unit_disk(rng);
+            let p = random_on_unit_disk(rng);
             self.origin + (p.x * self.dof_disk_horizontal) + (p.y * self.dof_disk_vertical)
         };
         let direction = self.get_random_location_on_pixel(i, j, rng) - origin;

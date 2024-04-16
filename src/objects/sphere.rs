@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
-use crate::{interval::Interval, materials::AnyMaterial, math::vector3::Vector3, ray::Ray};
+use glam::Vec3A;
+
+use crate::{interval::Interval, materials::AnyMaterial, ray::Ray};
 
 use super::{HitRecord, Hittable};
 
 pub struct Sphere {
-    center: Vector3,
+    center: Vec3A,
     radius: f32,
     material: Arc<AnyMaterial>,
 }
@@ -16,7 +18,7 @@ impl Sphere {
     /// ## Parameters
     /// * `center` - the center point of the sphere
     /// * `radius` - radius of the sphere
-    pub fn new<M>(center: Vector3, radius: f32, material: M) -> Self
+    pub fn new<M>(center: Vec3A, radius: f32, material: M) -> Self
     where
         M: Into<Arc<AnyMaterial>>,
     {
@@ -31,7 +33,7 @@ impl Sphere {
     ///
     /// ## Parameters
     /// * `point_on_sphere` - the point on the sphere to calculate normal of
-    pub fn get_outward_normal(&self, point_on_sphere: Vector3) -> Vector3 {
+    pub fn get_outward_normal(&self, point_on_sphere: Vec3A) -> Vec3A {
         (point_on_sphere - self.center) / self.radius
     }
 }
@@ -49,9 +51,9 @@ impl Hittable for Sphere {
         //       c = (ray.origin - center) * (ray.origin - center) - radius^2
         let distance = ray.origin() - self.center;
         // With optimization, we can reduce the amount the operations
-        let a = ray.direction().dot(&ray.direction());
-        let half_b = distance.dot(&ray.direction()); // The multiplication with 2 is unnecessary (it is undone by the denominator in the term above)
-        let c = distance.dot(&distance) - self.radius * self.radius;
+        let a = ray.direction().dot(ray.direction());
+        let half_b = distance.dot(ray.direction()); // The multiplication with 2 is unnecessary (it is undone by the denominator in the term above)
+        let c = distance.dot(distance) - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;
 
