@@ -2,7 +2,7 @@ use glam::{Mat4, Vec3A, Vec4, Vec4Swizzles};
 use rand::Rng;
 use rand_xoshiro::Xoshiro256Plus;
 
-use crate::{math::random_on_unit_disk, ray::Ray};
+use crate::{math::random_vec3_on_unit_disk, ray::Ray};
 
 pub struct Camera {
     origin: Vec3A,
@@ -275,7 +275,7 @@ impl Camera {
             // Since the projection plane is the same as the DOF plane,
             // the rays hit "correctly" only in that region, making everything
             // else blurry.
-            let p = random_on_unit_disk(rng);
+            let p = random_vec3_on_unit_disk(rng);
             self.origin + (p.x * self.dof_disk_horizontal) + (p.y * self.dof_disk_vertical)
         };
         let direction = self.get_random_location_on_pixel(i, j, rng) - origin;

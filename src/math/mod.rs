@@ -7,7 +7,7 @@ use rand_xoshiro::Xoshiro256Plus;
 /// Generate random normal variable with Box-Muller Transform
 ///
 /// Warning: This can return INF!!!
-pub fn random_normal(rng: &mut Xoshiro256Plus) -> f32 {
+pub fn random_normal_number(rng: &mut Xoshiro256Plus) -> f32 {
     // This is a fast (but not precise) RNG implementation
     //let mut rng = Xoshiro256Plus::from_rng(thread_rng()).expect("Could not retrieve RNG");
 
@@ -20,7 +20,7 @@ pub fn random_normal(rng: &mut Xoshiro256Plus) -> f32 {
     sqrt_part * cos_part
 }
 
-pub fn random_on_unit_disk(rng: &mut Xoshiro256Plus) -> Vec3A {
+pub fn random_vec3_on_unit_disk(rng: &mut Xoshiro256Plus) -> Vec3A {
     let r = rng.gen::<f32>().sqrt();
     let phi = 2.0 * PI * rng.gen::<f32>();
     let x = r * phi.cos();
@@ -32,13 +32,13 @@ pub fn random_on_unit_disk(rng: &mut Xoshiro256Plus) -> Vec3A {
 ///
 /// ## Parameters
 /// * `rng` - random number generator
-pub fn random_on_unit_sphere(rng: &mut Xoshiro256Plus) -> Vec3A {
+pub fn random_vec3_on_unit_sphere(rng: &mut Xoshiro256Plus) -> Vec3A {
     // Uses dropped coordinates method for sampling on n-sphere
     // We need to protect against infinite result!!!
-    let x = random_normal(rng);
-    let y = random_normal(rng);
-    let z = random_normal(rng);
-    let w = random_normal(rng);
+    let x = random_normal_number(rng);
+    let y = random_normal_number(rng);
+    let z = random_normal_number(rng);
+    let w = random_normal_number(rng);
 
     let norm = (x * x + y * y + z * z + w * w).sqrt();
 
@@ -61,7 +61,7 @@ pub fn random_on_unit_sphere(rng: &mut Xoshiro256Plus) -> Vec3A {
 /// ## Parameters
 /// `min` - lower bound of the range
 /// `max` - upper bound of the range
-pub fn random_in_range(min: f32, max: f32, rng: &mut ThreadRng) -> Vec3A {
+pub fn random_vec3_in_range(min: f32, max: f32, rng: &mut ThreadRng) -> Vec3A {
     // This is a fast (but not precise) RNG implementation
     //let mut rng = Xoshiro256Plus::from_rng(thread_rng()).expect("Could not retrieve RNG");
     //let mut rng = thread_rng();
@@ -95,7 +95,7 @@ pub fn random_in_range(min: f32, max: f32, rng: &mut ThreadRng) -> Vec3A {
 /// * `vector` - direction of incoming light
 /// * `normal` - normal at the contact point of the surface of the material
 /// * `k` - a ratio of refractive indices of the materials the light is going through
-pub fn refract(vector: Vec3A, normal: Vec3A, k: f32) -> Vec3A {
+pub fn refract_vec3(vector: Vec3A, normal: Vec3A, k: f32) -> Vec3A {
     let cos_theta = (-vector).dot(normal).min(1.0);
     let refracted_perpendicular = k * (vector + cos_theta * normal);
     let refracted_parallel =
@@ -108,21 +108,21 @@ pub fn refract(vector: Vec3A, normal: Vec3A, k: f32) -> Vec3A {
 /// ## Parameters
 /// * `vector` - vector to reflect
 /// * `normal` - vector to reflect over
-pub fn reflect(vector: Vec3A, normal: Vec3A) -> Vec3A {
+pub fn reflect_vec3(vector: Vec3A, normal: Vec3A) -> Vec3A {
     vector - 2.0 * vector.dot(normal) * normal
 }
 
 /// Creates a random vector with components in range `[0.0, 1.0]`
-pub fn random(rng: &mut Xoshiro256Plus) -> Vec3A {
+pub fn uniform_random_vec3(rng: &mut Xoshiro256Plus) -> Vec3A {
     Vec3A::new(rng.gen(), rng.gen(), rng.gen())
 }
 
 /// Checks if vector is near zero in all components
-pub fn near_zero(vector: Vec3A) -> bool {
+pub fn is_vec3_near_zero(vector: Vec3A) -> bool {
     let threshold = 1e-8;
     vector.x < threshold && vector.y < threshold && vector.z < threshold
 }
 
-pub fn is_invalid_vector(vector: Vec3A) -> bool {
+pub fn is_invalid_vec3(vector: Vec3A) -> bool {
     vector.x.is_nan() || vector.y.is_nan() || vector.z.is_nan()
 }

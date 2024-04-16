@@ -4,7 +4,7 @@ use rand_xoshiro::Xoshiro256Plus;
 
 use crate::{
     color::RGBColor,
-    math::{is_invalid_vector, random_on_unit_sphere},
+    math::{is_invalid_vec3, random_vec3_on_unit_sphere},
     objects::HitRecord,
     ray::Ray,
 };
@@ -47,7 +47,7 @@ impl Material for LambertarianDiffuse {
         hit_record: &HitRecord,
         rng: &mut Xoshiro256Plus,
     ) -> Option<MaterialScatterOutput> {
-        let random_unit_vector = random_on_unit_sphere(rng);
+        let random_unit_vector = random_vec3_on_unit_sphere(rng);
         let scatter_direction = hit_record.normal() + random_unit_vector;
 
         // Handles the nasty instance where direction of the new vector
@@ -58,7 +58,7 @@ impl Material for LambertarianDiffuse {
             scatter_direction = hit_record.normal();
         }*/
 
-        if is_invalid_vector(scatter_direction) {
+        if is_invalid_vec3(scatter_direction) {
             log::debug!("{}, {}", hit_record.normal(), random_unit_vector);
         }
 

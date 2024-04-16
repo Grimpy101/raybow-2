@@ -4,7 +4,7 @@ use rand_xoshiro::Xoshiro256Plus;
 
 use crate::{
     color::RGBColor,
-    math::{reflect, refract},
+    math::{reflect_vec3, refract_vec3},
     objects::HitRecord,
     ray::Ray,
 };
@@ -73,9 +73,9 @@ impl Material for Dielectric {
             Dielectric::reflectance(cos_theta, refraction_ratio) > rand::random();
 
         let direction = if cannot_refract || randomly_reflects {
-            reflect(unit_direction, hit_record.normal())
+            reflect_vec3(unit_direction, hit_record.normal())
         } else {
-            refract(unit_direction, hit_record.normal(), refraction_ratio)
+            refract_vec3(unit_direction, hit_record.normal(), refraction_ratio)
         };
 
         let scattered_ray = Ray::new(hit_record.point(), direction);
